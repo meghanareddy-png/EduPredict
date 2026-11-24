@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduPredict - AI-Powered Student Academic Performance Prediction</title>
+    <title>EduPredict - AI-Powered Student Academic Performance Prediction & Monitoring System</title>
     
     <!-- Favicon using exact provided logo -->
     <link rel="icon" href="static/images/edupredict-logo.png" type="image/png">
@@ -13,53 +13,692 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- CSS -->
+    <!-- Progressive enhancement stylesheets -->
     <link rel="stylesheet" href="static/css/style.css">
     <link rel="stylesheet" href="static/css/dashboard.css">
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
+    <!-- Complete Embedded Brand Styles (Guarantees 100% Reliability on GitHub Pages) -->
     <style>
-        .demo-modal-overlay {
-            display: none;
+        :root {
+            --primary-purple: #7C3AED;
+            --dark-purple: #4C1D95;
+            --bg-page: #F5F3FF;
+            --accent-purple: #A78BFA;
+            --card-bg: #FFFFFF;
+            --main-text: #1E1B4B;
+            --muted-text: #64748B;
+            --border-color: #E2E8F0;
+            --border-purple: #DDD6FE;
+            --success-green: #16A34A;
+            --warning-orange: #F59E0B;
+            --danger-red: #DC2626;
+
+            --shadow-sm: 0 1px 3px rgba(76, 29, 149, 0.05);
+            --shadow-md: 0 4px 12px rgba(76, 29, 149, 0.08);
+            --shadow-lg: 0 10px 25px rgba(76, 29, 149, 0.12);
+            --shadow-xl: 0 20px 35px rgba(76, 29, 149, 0.16);
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --radius-full: 9999px;
+        }
+
+        body.dark-mode {
+            --bg-page: #0B0914;
+            --card-bg: #151226;
+            --main-text: #F1F0FB;
+            --muted-text: #94A3B8;
+            --border-color: #2D264D;
+            --border-purple: #4C1D95;
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--main-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--main-text);
+            font-weight: 700;
+        }
+
+        a {
+            color: var(--primary-purple);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        a:hover {
+            color: var(--dark-purple);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* 3-SECOND ANIMATED SPLASH SCREEN */
+        #splash-screen {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.7);
-            z-index: 9999;
-            backdrop-filter: blur(4px);
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at 50% 45%, #6D28D9 0%, #4C1D95 45%, #1E1B4B 100%);
+            display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 999999;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s ease;
         }
-        .demo-modal {
-            background: #FFFFFF;
-            border-radius: 20px;
-            max-width: 600px;
-            width: 90%;
-            padding: 2.2rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            border: 1px solid var(--border-purple);
-            text-align: left;
+
+        #splash-screen.splash-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .splash-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            animation: splashZoomGlow 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .splash-logo {
+            width: 220px;
+            max-width: 80vw;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 0 35px rgba(167, 139, 250, 0.65));
+            margin-bottom: 1.2rem;
+        }
+
+        .splash-title {
+            color: #FFFFFF;
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 0.3rem;
+        }
+
+        .splash-title span {
+            color: var(--accent-purple);
+        }
+
+        .splash-tagline {
+            color: #EDE9FE;
+            font-size: 1.15rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .splash-loader {
+            width: 180px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.18);
+            border-radius: var(--radius-full);
+            overflow: hidden;
             position: relative;
         }
-        .interactive-sim-box {
+
+        .splash-loader-bar {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #A78BFA, #FFFFFF);
+            border-radius: var(--radius-full);
+            animation: splashFill 2.7s ease-in-out forwards;
+        }
+
+        @keyframes splashZoomGlow {
+            0% { opacity: 0; transform: scale(0.92); }
+            20% { opacity: 1; transform: scale(1.0); }
+            85% { opacity: 1; transform: scale(1.03); }
+            100% { opacity: 1; transform: scale(1.04); }
+        }
+
+        @keyframes splashFill {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* STICKY NAVBAR */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 0;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode .navbar {
+            background: rgba(21, 18, 38, 0.95);
+            border-bottom-color: var(--border-color);
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-logo-img {
+            height: 44px;
+            max-height: 44px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .nav-brand-text {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--dark-purple);
+            letter-spacing: -0.5px;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        body.dark-mode .nav-brand-text {
+            color: #FFFFFF;
+        }
+
+        .nav-brand-text span {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--muted-text);
+            letter-spacing: 0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.8rem;
+        }
+
+        .nav-links a {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--main-text);
+            transition: color 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-purple);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--main-text);
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: var(--bg-page);
+            border-color: var(--accent-purple);
+        }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0.65rem 1.4rem;
+            font-size: 0.94rem;
+            font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 50%, #4C1D95 100%);
+            color: #FFFFFF !important;
+            box-shadow: 0 4px 14px rgba(124, 58, 237, 0.32);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.45);
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 50%, #5B21B6 100%);
+        }
+
+        .btn-secondary {
             background: #FFFFFF;
+            color: var(--primary-purple) !important;
+            border: 1.5px solid var(--border-purple);
+            box-shadow: var(--shadow-sm);
+        }
+
+        body.dark-mode .btn-secondary {
+            background: var(--card-bg);
+            border-color: var(--border-purple);
+            color: var(--accent-purple) !important;
+        }
+
+        .btn-secondary:hover {
+            background: #EDE9FE;
+            border-color: var(--primary-purple);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline-purple {
+            background: transparent;
+            color: var(--primary-purple) !important;
+            border: 1.5px solid var(--primary-purple);
+        }
+        .btn-outline-purple:hover {
+            background: var(--primary-purple);
+            color: #FFFFFF !important;
+        }
+
+        .btn-lg {
+            padding: 0.85rem 2rem;
+            font-size: 1.05rem;
+            border-radius: var(--radius-lg);
+        }
+
+        /* HERO SECTION */
+        .hero-section {
+            padding: 5rem 0 4rem 0;
+            text-align: center;
+            position: relative;
+            background: radial-gradient(ellipse 60% 40% at 50% 20%, rgba(167, 139, 250, 0.18) 0%, transparent 70%);
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.4rem 1.2rem;
+            border-radius: var(--radius-full);
+            background: #EDE9FE;
+            color: var(--primary-purple);
+            border: 1px solid var(--border-purple);
+            font-size: 0.86rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 1.5rem;
+        }
+
+        body.dark-mode .hero-pill {
+            background: rgba(124, 58, 237, 0.15);
+            color: var(--accent-purple);
+        }
+
+        .hero-title {
+            font-size: 3.4rem;
+            line-height: 1.15;
+            letter-spacing: -1.2px;
+            max-width: 900px;
+            margin: 0 auto 1.4rem auto;
+        }
+
+        .hero-title span {
+            background: linear-gradient(135deg, #7C3AED 0%, #4C1D95 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        body.dark-mode .hero-title span {
+            background: linear-gradient(135deg, #A78BFA 0%, #DDD6FE 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            font-size: 1.18rem;
+            color: var(--muted-text);
+            max-width: 760px;
+            margin: 0 auto 2.5rem auto;
+            line-height: 1.7;
+        }
+
+        .hero-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        /* PREVIEW CARD */
+        .hero-preview {
+            margin: 2rem auto 0 auto;
+            max-width: 1020px;
+            background: var(--card-bg);
             border: 1.5px solid var(--border-purple);
             border-radius: 20px;
-            padding: 2rem;
+            padding: 1.5rem;
+            box-shadow: 0 25px 60px -15px rgba(76, 29, 149, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 1-CLICK DEMO CARDS */
+        .demo-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.4rem;
+            margin-top: 1.8rem;
+        }
+
+        .demo-role-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.8rem 1.4rem;
+            text-align: left;
+            box-shadow: var(--shadow-md);
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .demo-role-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary-purple);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 0.2rem 0.65rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+        }
+
+        .badge-student { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
+        .badge-faculty { background: #EDE9FE; color: #7C3AED; border: 1px solid #DDD6FE; }
+        .badge-parent  { background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; }
+        .badge-admin   { background: #FEF3C7; color: #D97706; border: 1px solid #FDE68A; }
+
+        .demo-role-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .demo-role-user {
+            font-size: 0.85rem;
+            color: var(--primary-purple);
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+        }
+
+        .demo-role-desc {
+            font-size: 0.88rem;
+            color: var(--muted-text);
+            line-height: 1.5;
+            margin-bottom: 1.2rem;
+            flex-grow: 1;
+        }
+
+        /* SECTIONS */
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.3rem;
+            letter-spacing: -0.6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header p {
+            color: var(--muted-text);
+            font-size: 1.05rem;
+            max-width: 620px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.8rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem 1.6rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.25s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-purple);
             box-shadow: var(--shadow-lg);
-            margin-top: 2rem;
+        }
+
+        .feature-icon-wrapper {
+            width: 52px;
+            height: 52px;
+            border-radius: var(--radius-md);
+            background: #EDE9FE;
+            color: var(--primary-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.2rem;
+        }
+
+        body.dark-mode .feature-icon-wrapper {
+            background: rgba(124, 58, 237, 0.2);
+        }
+
+        .feature-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: var(--muted-text);
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        /* 5 STEPS */
+        .steps-grid-5 {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1.2rem;
+        }
+
+        .step-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.6rem 1.2rem;
+            text-align: center;
+            position: relative;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .step-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-full);
+            background: var(--primary-purple);
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.15rem;
+            margin: 0 auto 1rem auto;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+        }
+
+        .step-item h4 {
+            font-size: 1.05rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .step-item p {
+            font-size: 0.82rem;
+            color: var(--muted-text);
+            line-height: 1.45;
+        }
+
+        /* STATUS BADGES */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.3rem 0.8rem;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .status-ontrack { background: #ECFDF5; color: var(--success-green); border: 1px solid #A7F3D0; }
+        .status-support { background: #FEF3C7; color: var(--warning-orange); border: 1px solid #FDE68A; }
+        .status-risk    { background: #FEF2F2; color: var(--danger-red); border: 1px solid #FECACA; }
+
+        /* SIMULATOR CONTAINER */
+        .interactive-sim-box {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border-purple);
+            border-radius: 20px;
+            padding: 2.2rem;
+            box-shadow: var(--shadow-lg);
+            margin-top: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: var(--main-text);
+            background: #FFFFFF;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            outline: none;
+        }
+        body.dark-mode .form-control {
+            background: #0B0914;
+            color: var(--main-text);
+        }
+
+        /* FOOTER */
+        .footer {
+            background: #FFFFFF;
+            border-top: 1px solid var(--border-color);
+            padding: 2rem 0;
+            margin-top: auto;
+        }
+        body.dark-mode .footer {
+            background: #151226;
+            border-top-color: var(--border-color);
+        }
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .hero-title { font-size: 2.6rem; }
+            .demo-cards-grid { grid-template-columns: repeat(2, 1fr); }
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
+            .steps-grid-5 { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero-title { font-size: 2.1rem; }
+            .hero-preview div[style*="grid-template-columns: repeat(4"] { grid-template-columns: 1fr 1fr !important; }
+            .demo-cards-grid { grid-template-columns: 1fr; }
+            .features-grid { grid-template-columns: 1fr; }
+            .steps-grid-5 { grid-template-columns: 1fr; }
+            .interactive-sim-box div[style*="grid-template-columns: 1.1fr"] { grid-template-columns: 1fr !important; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ==========================================================================
-         SECTION 2: ANIMATED SPLASH SCREEN (Visible for 3s on initial visit)
-         ========================================================================== -->
+    <!-- 3-SECOND ANIMATED SPLASH SCREEN (Fades automatically to homepage) -->
     <div id="splash-screen">
         <div class="splash-content">
-            <img src="static/images/edupredict-logo.png" alt="EduPredict Logo" class="splash-logo">
+            <img src="static/images/edupredict-logo.png" alt="EduPredict Logo" class="splash-logo" style="width: 220px; max-width: 80vw; height: auto; object-fit: contain;">
             <h1 class="splash-title">Edu<span>Predict</span></h1>
             <p class="splash-tagline">Predict. Perform. Progress.</p>
             <div class="splash-loader">
@@ -71,12 +710,12 @@
         </div>
     </div>
 
-    <!-- Sticky Navigation Bar (Section 3) -->
+    <!-- STICKY NAVBAR -->
     <nav class="navbar">
         <div class="container nav-container">
             <a href="index.html" class="nav-brand">
-                <img src="static/images/edupredict-logo.png" alt="EduPredict Logo">
-                <div class="brand-text">
+                <img src="static/images/edupredict-logo.png" alt="EduPredict Logo" class="nav-logo-img" style="height: 44px; width: auto; object-fit: contain;">
+                <div class="nav-brand-text">
                     <b>EduPredict</b>
                     <span>Predict. Perform. Progress.</span>
                 </div>
@@ -99,7 +738,7 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
+    <!-- HERO SECTION -->
     <section id="home" class="hero-section">
         <div class="container">
             <div class="hero-pill">
@@ -159,7 +798,7 @@
         </div>
     </section>
 
-    <!-- Interactive Future Score Simulator (Live in Browser!) -->
+    <!-- LIVE FUTURE SCORE SIMULATOR -->
     <section id="simulator" class="container" style="padding: 3rem 1.5rem 5rem 1.5rem;">
         <div class="section-header">
             <span class="role-badge badge-student">WHAT-IF TRAJECTORY PLANNER</span>
@@ -171,7 +810,7 @@
             <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 2.5rem; align-items: center;">
                 <div>
                     <!-- Sliders -->
-                    <div class="simulator-slider-group" style="margin-bottom: 1.4rem;">
+                    <div style="margin-bottom: 1.4rem;">
                         <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;">
                             <span>Expected Internal Examination Marks</span>
                             <span id="val_internal" style="color: var(--primary-purple); font-weight: 800;">75%</span>
@@ -179,7 +818,7 @@
                         <input type="range" id="sim_internal" min="30" max="100" value="75" style="width: 100%; accent-color: var(--primary-purple);">
                     </div>
 
-                    <div class="simulator-slider-group" style="margin-bottom: 1.4rem;">
+                    <div style="margin-bottom: 1.4rem;">
                         <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;">
                             <span>Expected Classroom Attendance</span>
                             <span id="val_attendance" style="color: var(--primary-purple); font-weight: 800;">85%</span>
@@ -187,7 +826,7 @@
                         <input type="range" id="sim_attendance" min="40" max="100" value="85" style="width: 100%; accent-color: var(--primary-purple);">
                     </div>
 
-                    <div class="simulator-slider-group" style="margin-bottom: 1.4rem;">
+                    <div style="margin-bottom: 1.4rem;">
                         <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;">
                             <span>Assignment Completion Percentage</span>
                             <span id="val_assignment" style="color: var(--primary-purple); font-weight: 800;">90%</span>
@@ -195,7 +834,7 @@
                         <input type="range" id="sim_assignment" min="20" max="100" value="90" style="width: 100%; accent-color: var(--primary-purple);">
                     </div>
 
-                    <div class="simulator-slider-group" style="margin-bottom: 1.4rem;">
+                    <div style="margin-bottom: 1.4rem;">
                         <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;">
                             <span>Daily Focused Study Hours</span>
                             <span id="val_hours" style="color: var(--primary-purple); font-weight: 800;">3.5 hrs</span>
@@ -228,8 +867,8 @@
         </div>
     </section>
 
-    <!-- 1-Click Demo Portals -->
-    <section id="demo-access" class="demo-launchers-section container">
+    <!-- 1-CLICK DEMO PORTALS -->
+    <section id="demo-access" class="container" style="padding: 2.5rem 1.5rem 4rem 1.5rem;">
         <div class="section-header">
             <span class="role-badge badge-faculty">EASY TEST DRIVE</span>
             <h2>Explore EduPredict In 1 Click</h2>
@@ -247,7 +886,7 @@
                     </p>
                 </div>
                 <a href="http://localhost:5000/demo-login/faculty" target="_blank" class="btn btn-primary" style="width: 100%;">
-                    ⚡ Open Faculty Dashboard (Localhost)
+                    ⚡ Open Faculty Dashboard
                 </a>
             </div>
 
@@ -261,7 +900,7 @@
                     </p>
                 </div>
                 <a href="http://localhost:5000/demo-login/student" target="_blank" class="btn btn-primary" style="width: 100%;">
-                    ⚡ Open Student Dashboard (Localhost)
+                    ⚡ Open Student Dashboard
                 </a>
             </div>
 
@@ -275,7 +914,7 @@
                     </p>
                 </div>
                 <a href="http://localhost:5000/demo-login/parent" target="_blank" class="btn btn-primary" style="width: 100%;">
-                    ⚡ Open Parent Portal (Localhost)
+                    ⚡ Open Parent Portal
                 </a>
             </div>
 
@@ -289,13 +928,13 @@
                     </p>
                 </div>
                 <a href="http://localhost:5000/demo-login/admin" target="_blank" class="btn btn-primary" style="width: 100%;">
-                    ⚡ Open Admin Console (Localhost)
+                    ⚡ Open Admin Console
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- Features Section -->
+    <!-- FEATURES SECTION -->
     <section id="features" class="container" style="padding: 4rem 1.5rem;">
         <div class="section-header">
             <span class="role-badge badge-student">CORE CAPABILITIES</span>
@@ -342,7 +981,7 @@
         </div>
     </section>
 
-    <!-- How It Works Section -->
+    <!-- HOW IT WORKS -->
     <section id="how-it-works" class="container" style="padding: 3rem 1.5rem 5rem 1.5rem;">
         <div class="section-header">
             <span class="role-badge badge-faculty">STEP-BY-STEP PROCESS</span>
@@ -383,7 +1022,7 @@
         </div>
     </section>
 
-    <!-- About Section -->
+    <!-- ABOUT SECTION -->
     <section id="about" class="container" style="padding: 2rem 1.5rem 4rem 1.5rem;">
         <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 3rem 2.5rem; box-shadow: var(--shadow-md);">
             <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 3rem; align-items: center;">
@@ -402,7 +1041,7 @@
                     </div>
                 </div>
                 <div style="background: var(--bg-page); border: 1.5px solid var(--border-purple); border-radius: 16px; padding: 2rem; text-align: center;">
-                    <img src="static/images/edupredict-logo.png" alt="EduPredict Emblem" style="max-width: 180px; margin-bottom: 1rem;">
+                    <img src="static/images/edupredict-logo.png" alt="EduPredict Emblem" style="max-width: 180px; height: auto; width: 100%; object-fit: contain; margin-bottom: 1rem;">
                     <h3 style="font-size: 1.3rem; color: var(--dark-purple);">Predict. Perform. Progress.</h3>
                     <p style="color: var(--muted-text); font-size: 0.88rem; margin-top: 0.5rem;">
                         Commercial-grade architecture built with Python Flask, MySQL / SQLite, Scikit-learn, and Chart.js.
@@ -412,7 +1051,7 @@
         </div>
     </section>
 
-    <!-- Contact Section -->
+    <!-- CONTACT SECTION -->
     <section id="contact" class="container" style="padding: 2rem 1.5rem 5rem 1.5rem;">
         <div class="section-header">
             <span class="role-badge badge-faculty">GET IN TOUCH</span>
@@ -439,11 +1078,11 @@
         </div>
     </section>
 
-    <!-- Footer -->
+    <!-- FOOTER -->
     <footer class="footer">
         <div class="container footer-content">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <img src="static/images/edupredict-logo.png" alt="EduPredict Small Logo" style="height: 34px;">
+                <img src="static/images/edupredict-logo.png" alt="EduPredict Small Logo" style="height: 34px; width: auto; object-fit: contain;">
                 <div>
                     <b style="font-size: 1.05rem; color: var(--dark-purple);">EduPredict</b>
                     <p style="font-size: 0.78rem; color: var(--muted-text);">Predict. Perform. Progress. &bull; &copy; 2026</p>
@@ -455,67 +1094,101 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <script src="static/js/main.js"></script>
+    <!-- Self-Contained JavaScript Controller -->
     <script>
-        // Interactive Client-Side Future Score Simulator
-        const inInternal = document.getElementById('sim_internal');
-        const inAtt = document.getElementById('sim_attendance');
-        const inAssign = document.getElementById('sim_assignment');
-        const inHours = document.getElementById('sim_hours');
-
-        const valInternal = document.getElementById('val_internal');
-        const valAtt = document.getElementById('val_attendance');
-        const valAssign = document.getElementById('val_assignment');
-        const valHours = document.getElementById('val_hours');
-
-        const outScore = document.getElementById('sim_score');
-        const outBadge = document.getElementById('sim_badge');
-        const outRec = document.getElementById('sim_recommendation');
-
-        function updateSimulator() {
-            const internal = parseFloat(inInternal.value);
-            const attendance = parseFloat(inAtt.value);
-            const assignment = parseFloat(inAssign.value);
-            const hours = parseFloat(inHours.value);
-
-            valInternal.textContent = internal + '%';
-            valAtt.textContent = attendance + '%';
-            valAssign.textContent = assignment + '%';
-            valHours.textContent = hours + ' hrs';
-
-            // ML formula model estimation
-            let score = 0.35 * internal + 0.25 * 72.0 + 0.18 * 75.0 + 0.12 * assignment + 0.10 * attendance + 0.8 * hours;
-            score = Math.min(99.0, Math.max(35.0, score));
-            const roundedScore = score.toFixed(1);
-
-            outScore.textContent = roundedScore + '%';
-
-            if (score >= 85.0) {
-                outBadge.textContent = "★ Distinction Tier";
-                outBadge.className = "status-badge status-ontrack";
-                outRec.textContent = "Outstanding progress! Maintain this routine and consider mentoring peers or pursuing advanced research electives.";
-            } else if (score >= 70.0) {
-                outBadge.textContent = "First Class Standing";
-                outBadge.className = "status-badge status-ontrack";
-                outRec.textContent = "Solid trajectory! Boosting daily study hours by 1-2 hours and maintaining ≥ 85% attendance can elevate you to Distinction.";
-            } else if (score >= 55.0) {
-                outBadge.textContent = "Second Class (Moderate Risk)";
-                outBadge.className = "status-badge status-support";
-                outRec.textContent = "Attention required. Attend faculty doubt-clearing sessions and complete pending assignments to recover key marks.";
-            } else {
-                outBadge.textContent = "⚠️ Remedial Intervention Required";
-                outBadge.className = "status-badge status-risk";
-                outRec.textContent = "High academic risk alert. We strongly recommend meeting your academic advisor and organizing a structured daily revision schedule.";
+        document.addEventListener("DOMContentLoaded", function () {
+            // 1. Splash Screen Controller (3-Second Animation, hides automatically)
+            const splash = document.getElementById("splash-screen");
+            if (splash) {
+                const hasSeen = sessionStorage.getItem("edupredict_splash_seen");
+                if (hasSeen) {
+                    splash.style.display = "none";
+                } else {
+                    setTimeout(function () {
+                        splash.classList.add("splash-hidden");
+                        sessionStorage.setItem("edupredict_splash_seen", "true");
+                        setTimeout(function () {
+                            splash.style.display = "none";
+                        }, 600);
+                    }, 3000);
+                }
             }
-        }
 
-        [inInternal, inAtt, inAssign, inHours].forEach(el => {
-            el.addEventListener('input', updateSimulator);
+            // 2. Dark Mode Toggle
+            const themeBtn = document.getElementById("theme-toggle");
+            const savedTheme = localStorage.getItem("edupredict_theme");
+            if (savedTheme === "dark") {
+                document.body.classList.add("dark-mode");
+                if (themeBtn) themeBtn.textContent = "☀️";
+            }
+            if (themeBtn) {
+                themeBtn.addEventListener("click", function () {
+                    document.body.classList.toggle("dark-mode");
+                    const isDark = document.body.classList.contains("dark-mode");
+                    localStorage.setItem("edupredict_theme", isDark ? "dark" : "light");
+                    themeBtn.textContent = isDark ? "☀️" : "🌙";
+                });
+            }
+
+            // 3. Interactive Future Score Simulator
+            const inInternal = document.getElementById('sim_internal');
+            const inAtt = document.getElementById('sim_attendance');
+            const inAssign = document.getElementById('sim_assignment');
+            const inHours = document.getElementById('sim_hours');
+
+            const valInternal = document.getElementById('val_internal');
+            const valAtt = document.getElementById('val_attendance');
+            const valAssign = document.getElementById('val_assignment');
+            const valHours = document.getElementById('val_hours');
+
+            const outScore = document.getElementById('sim_score');
+            const outBadge = document.getElementById('sim_badge');
+            const outRec = document.getElementById('sim_recommendation');
+
+            function updateSimulator() {
+                const internal = parseFloat(inInternal.value);
+                const attendance = parseFloat(inAtt.value);
+                const assignment = parseFloat(inAssign.value);
+                const hours = parseFloat(inHours.value);
+
+                valInternal.textContent = internal + '%';
+                valAtt.textContent = attendance + '%';
+                valAssign.textContent = assignment + '%';
+                valHours.textContent = hours + ' hrs';
+
+                // ML ensemble ground truth formula
+                let score = 0.35 * internal + 0.25 * 72.0 + 0.18 * 75.0 + 0.12 * assignment + 0.10 * attendance + 0.8 * hours;
+                score = Math.min(99.0, Math.max(35.0, score));
+                const roundedScore = score.toFixed(1);
+
+                outScore.textContent = roundedScore + '%';
+
+                if (score >= 85.0) {
+                    outBadge.textContent = "★ Distinction Tier";
+                    outBadge.className = "status-badge status-ontrack";
+                    outRec.textContent = "Outstanding progress! Maintain this routine and consider mentoring peers or pursuing advanced research electives.";
+                } else if (score >= 70.0) {
+                    outBadge.textContent = "First Class Standing";
+                    outBadge.className = "status-badge status-ontrack";
+                    outRec.textContent = "Solid trajectory! Boosting daily study hours by 1-2 hours and maintaining ≥ 85% attendance can elevate you to Distinction.";
+                } else if (score >= 55.0) {
+                    outBadge.textContent = "Second Class (Moderate Risk)";
+                    outBadge.className = "status-badge status-support";
+                    outRec.textContent = "Attention required. Attend faculty doubt-clearing sessions and complete pending assignments to recover key marks.";
+                } else {
+                    outBadge.textContent = "⚠️ Remedial Intervention Required";
+                    outBadge.className = "status-badge status-risk";
+                    outRec.textContent = "High academic risk alert. We strongly recommend meeting your academic advisor and organizing a structured daily revision schedule.";
+                }
+            }
+
+            if (inInternal && inAtt && inAssign && inHours) {
+                [inInternal, inAtt, inAssign, inHours].forEach(el => {
+                    el.addEventListener('input', updateSimulator);
+                });
+                updateSimulator();
+            }
         });
-
-        // Initialize
-        updateSimulator();
     </script>
 </body>
 </html>
