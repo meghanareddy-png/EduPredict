@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduPredict - AI-Powered Student Academic Performance Prediction</title>
+    
+    <!-- Favicon using exact provided logo -->
+    <link rel="icon" href="static/images/edupredict-logo.png" type="image/png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/dashboard.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <style>
+        .demo-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.7);
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+        }
+        .demo-modal {
+            background: #FFFFFF;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            padding: 2.2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-purple);
+            text-align: left;
+            position: relative;
+        }
+        .interactive-sim-box {
+            background: #FFFFFF;
+            border: 1.5px solid var(--border-purple);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================================================
+         SECTION 2: ANIMATED SPLASH SCREEN (Visible for 3s on initial visit)
+         ========================================================================== -->
+    <div id="splash-screen">
+        <div class="splash-content">
+            <img src="static/images/edupredict-logo.png" alt="EduPredict Logo" class="splash-logo">
+            <h1 class="splash-title">Edu<span>Predict</span></h1>
+            <p class="splash-tagline">Predict. Perform. Progress.</p>
+            <div class="splash-loader">
+                <div class="splash-loader-bar"></div>
+            </div>
+            <p style="color: rgba(255,255,255,0.7); font-size: 0.8rem; margin-top: 1rem;">
+                Initializing Intelligent Academic Platform...
+            </p>
+        </div>
+    </div>
+
+    <!-- Sticky Navigation Bar (Section 3) -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="nav-brand">
+                <img src="static/images/edupredict-logo.png" alt="EduPredict Logo">
+                <div class="brand-text">
+                    <b>EduPredict</b>
+                    <span>Predict. Perform. Progress.</span>
+                </div>
+            </a>
+
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#features">Features</a>
+                <a href="#simulator">Score Simulator</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#about">About</a>
+                <a href="#contact">Contact</a>
+            </div>
+
+            <div class="nav-actions">
+                <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Light/Dark Theme">🌙</button>
+                <a href="http://localhost:5000/login" class="btn btn-outline-purple" target="_blank" title="Open Localhost Backend">Localhost Login</a>
+                <a href="#demo-access" class="btn btn-primary">Try Interactive Demo</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="container">
+            <div class="hero-pill">
+                ✨ AI-POWERED STUDENT ACADEMIC MONITORING & PREDICTION SYSTEM
+            </div>
+
+            <h1 class="hero-title">
+                Predict Better. Perform Better.<br>
+                <span>Build a Brighter Future.</span>
+            </h1>
+
+            <p class="hero-desc">
+                An intelligent academic monitoring platform that connects students, parents, and faculty through AI-powered academic predictions, early risk detection, and personalized pedagogical insights.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="#simulator" class="btn btn-primary btn-lg">Launch Score Simulator</a>
+                <a href="#features" class="btn btn-secondary btn-lg">Explore Features</a>
+                <a href="http://localhost:5000" target="_blank" class="btn btn-outline-purple btn-lg">⚡ Open Localhost Server</a>
+            </div>
+
+            <!-- Attractive Dashboard Preview Card -->
+            <div class="hero-preview">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; margin-bottom: 1.2rem;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="width: 12px; height: 12px; border-radius: 50%; background: #EF4444; display: inline-block;"></span>
+                        <span style="width: 12px; height: 12px; border-radius: 50%; background: #F59E0B; display: inline-block;"></span>
+                        <span style="width: 12px; height: 12px; border-radius: 50%; background: #10B981; display: inline-block;"></span>
+                        <span style="font-size: 0.82rem; font-weight: 700; color: var(--muted-text); margin-left: 8px;">EduPredict AI Analytics Console Preview</span>
+                    </div>
+                    <span class="status-badge status-ontrack">🟢 Random Forest Model Active (R²: 0.914)</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; text-align: left;">
+                    <div style="background: var(--bg-page); border: 1px solid var(--border-purple); border-radius: 12px; padding: 1rem;">
+                        <div style="font-size: 0.76rem; color: var(--muted-text); font-weight: 700;">PREDICTED EXAM SCORE</div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: var(--primary-purple); margin: 4px 0;">90.5%</div>
+                        <div style="font-size: 0.74rem; color: var(--success-green); font-weight: 600;">★ Distinction Tier</div>
+                    </div>
+                    <div style="background: var(--bg-page); border: 1px solid var(--border-purple); border-radius: 12px; padding: 1rem;">
+                        <div style="font-size: 0.76rem; color: var(--muted-text); font-weight: 700;">ATTENDANCE METRIC</div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: var(--main-text); margin: 4px 0;">92.0%</div>
+                        <div style="font-size: 0.74rem; color: var(--success-green); font-weight: 600;">Benchmark: ≥ 75% Met</div>
+                    </div>
+                    <div style="background: var(--bg-page); border: 1px solid var(--border-purple); border-radius: 12px; padding: 1rem;">
+                        <div style="font-size: 0.76rem; color: var(--muted-text); font-weight: 700;">ASSIGNMENT DISCIPLINE</div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: var(--main-text); margin: 4px 0;">94.3%</div>
+                        <div style="font-size: 0.74rem; color: var(--primary-purple); font-weight: 600;">Coursework Submissions</div>
+                    </div>
+                    <div style="background: var(--bg-page); border: 1px solid var(--border-purple); border-radius: 12px; padding: 1rem;">
+                        <div style="font-size: 0.76rem; color: var(--muted-text); font-weight: 700;">EARLY RISK STATUS</div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: var(--success-green); margin: 4px 0;">LOW</div>
+                        <div style="font-size: 0.74rem; color: var(--muted-text);">Multi-factor AI Evaluation</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Future Score Simulator (Live in Browser!) -->
+    <section id="simulator" class="container" style="padding: 3rem 1.5rem 5rem 1.5rem;">
+        <div class="section-header">
+            <span class="role-badge badge-student">WHAT-IF TRAJECTORY PLANNER</span>
+            <h2>🔮 Interactive Future Score Simulator</h2>
+            <p>Adjust academic indicators below to see how hypothetical improvements impact your final predicted outcome.</p>
+        </div>
+
+        <div class="interactive-sim-box">
+            <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 2.5rem; align-items: center;">
+                <div>
+                    <!-- Sliders -->
+                    <div class="simulator-slider-group" style="margin-bottom: 1.4rem;">
+                        <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;">
+                            <span>Expected Internal Examination Marks</span>
+                            <span id="val_internal" style="color: var(--primary-purple); font-weight: 800;">75%</span>
+                        </div>
+                        <input type="range" id="sim_internal" min="30" max="100" value="75" style="width: 100%; accent-color: var(--primary-purple);">
+                    </div>
+
+                    <div class="simulator-slider-group" style="margin-bottom: 1.4rem;">
+                        <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;">
+                            <span>Expected Classroom Attendance</span>
+                            <span id="val_attendance" style="color: var(--primary-purple); font-weight: 800;">85%</span>
+                        </div>
+                        <input type="range" id="sim_attendance" min="40" max="100" value="85" style="width: 100%; accent-color: var(--primary-purple);">
+                    </div>
+
+                    <div class="simulator-slider-group" style="margin-bottom: 1.4rem;">
+                        <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;">
+                            <span>Assignment Completion Percentage</span>
+                            <span id="val_assignment" style="color: var(--primary-purple); font-weight: 800;">90%</span>
+                        </div>
+                        <input type="range" id="sim_assignment" min="20" max="100" value="90" style="width: 100%; accent-color: var(--primary-purple);">
+                    </div>
+
+                    <div class="simulator-slider-group" style="margin-bottom: 1.4rem;">
+                        <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px;">
+                            <span>Daily Focused Study Hours</span>
+                            <span id="val_hours" style="color: var(--primary-purple); font-weight: 800;">3.5 hrs</span>
+                        </div>
+                        <input type="range" id="sim_hours" min="1" max="8" step="0.5" value="3.5" style="width: 100%; accent-color: var(--primary-purple);">
+                    </div>
+                </div>
+
+                <!-- Live Results Display Card -->
+                <div style="background: var(--bg-page); border: 2px solid var(--border-purple); border-radius: 16px; padding: 2rem; text-align: center;">
+                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--muted-text); letter-spacing: 0.05em;">SIMULATED FINAL ACADEMIC SCORE</div>
+                    <div id="sim_score" style="font-size: 3.5rem; font-weight: 800; color: var(--primary-purple); margin: 0.5rem 0;">82.6%</div>
+                    
+                    <div style="display: inline-block; padding: 6px 16px; border-radius: 9999px; font-weight: 700; font-size: 0.88rem; margin-bottom: 1rem;" id="sim_badge" class="status-badge status-ontrack">
+                        First Class Standing
+                    </div>
+
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 1rem; text-align: left;">
+                        <div style="font-size: 0.82rem; font-weight: 700; color: var(--main-text); margin-bottom: 4px;">🎯 AI Tailored Study Recommendation:</div>
+                        <p id="sim_recommendation" style="font-size: 0.85rem; color: var(--muted-text); line-height: 1.5; margin: 0;">
+                            Maintaining consistent lecture attendance above 85% and completing assignments before deadlines keeps your academic trajectory in the top performance bracket.
+                        </p>
+                    </div>
+                    
+                    <p style="font-size: 0.72rem; color: var(--muted-text); margin-top: 1.2rem;">
+                        * Estimates are generated for educational planning and are not guaranteed examination results.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 1-Click Demo Portals -->
+    <section id="demo-access" class="demo-launchers-section container">
+        <div class="section-header">
+            <span class="role-badge badge-faculty">EASY TEST DRIVE</span>
+            <h2>Explore EduPredict In 1 Click</h2>
+            <p>Access pre-configured portals for all 4 educational roles with full academic data.</p>
+        </div>
+
+        <div class="demo-cards-grid">
+            <div class="demo-role-card">
+                <div>
+                    <span class="role-badge badge-faculty">🎓 Faculty Console</span>
+                    <h3>Prof. Rajesh Sharma</h3>
+                    <div class="demo-role-user">Class CSE-3A Instructor &bull; CSE Dept</div>
+                    <p class="demo-role-desc">
+                        Manage student rosters, enter exam marks, log attendance, review AI early risk predictions, and export analytical reports.
+                    </p>
+                </div>
+                <a href="http://localhost:5000/demo-login/faculty" target="_blank" class="btn btn-primary" style="width: 100%;">
+                    ⚡ Open Faculty Dashboard (Localhost)
+                </a>
+            </div>
+
+            <div class="demo-role-card">
+                <div>
+                    <span class="role-badge badge-student">📚 Student Hub</span>
+                    <h3>Aarav Patel</h3>
+                    <div class="demo-role-user">STU1001 &bull; 3rd Year CSE (On Track)</div>
+                    <p class="demo-role-desc">
+                        Track personal progress, inspect teacher feedback, view weak areas, and simulate future outcomes with the interactive "What If" planner.
+                    </p>
+                </div>
+                <a href="http://localhost:5000/demo-login/student" target="_blank" class="btn btn-primary" style="width: 100%;">
+                    ⚡ Open Student Dashboard (Localhost)
+                </a>
+            </div>
+
+            <div class="demo-role-card">
+                <div>
+                    <span class="role-badge badge-parent">👨‍👩‍👧 Parent Portal</span>
+                    <h3>Suresh Patel</h3>
+                    <div class="demo-role-user">Verified Father of Aarav Patel</div>
+                    <p class="demo-role-desc">
+                        Monitor attendance trends, review continuous marks, receive early alerts, and download official progress reports.
+                    </p>
+                </div>
+                <a href="http://localhost:5000/demo-login/parent" target="_blank" class="btn btn-primary" style="width: 100%;">
+                    ⚡ Open Parent Portal (Localhost)
+                </a>
+            </div>
+
+            <div class="demo-role-card">
+                <div>
+                    <span class="role-badge badge-admin">⚙️ Administrator</span>
+                    <h3>System Administrator</h3>
+                    <div class="demo-role-user">Root Administrative Control</div>
+                    <p class="demo-role-desc">
+                        Full system administration: manage users, departments, subjects, faculty-class assignments, parent links, and ML model retraining.
+                    </p>
+                </div>
+                <a href="http://localhost:5000/demo-login/admin" target="_blank" class="btn btn-primary" style="width: 100%;">
+                    ⚡ Open Admin Console (Localhost)
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="container" style="padding: 4rem 1.5rem;">
+        <div class="section-header">
+            <span class="role-badge badge-student">CORE CAPABILITIES</span>
+            <h2>Comprehensive Academic Intelligence</h2>
+            <p>Built with enterprise machine learning and multi-tenant security to elevate student success.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">🔮</div>
+                <h3>1. AI Academic Prediction</h3>
+                <p>Trained Scikit-learn regression and classification models evaluate attendance, continuous assessments, and study discipline to project terminal examination trajectories weeks in advance.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">📈</div>
+                <h3>2. Student Performance Monitoring</h3>
+                <p>Comprehensive tracking of internal tests, practicals, and assignments with interactive Chart.js visualizations that reveal growth trajectories and milestone achievements.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">📅</div>
+                <h3>3. Attendance Tracking</h3>
+                <p>Automated daily attendance logs with instant threshold warnings. Directly correlates lecture attendance with predicted final grade outcomes.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">👨‍👩‍👧</div>
+                <h3>4. Parent Monitoring</h3>
+                <p>Verified parent-student relationships offer families transparent, real-time observation of attendance, scores, teacher feedback, and downloadable PDF progress reports.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">📊</div>
+                <h3>5. Faculty Analytics</h3>
+                <p>Empowers teachers with class-wide risk heatmaps, low-attendance filters, quick marks logging, assignment management, and personalized student feedback tools.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">💡</div>
+                <h3>6. Personalized Study Recommendations</h3>
+                <p>Automated pedagogical weakness detection generates tailored, constructive study habit adjustments and faculty consultation recommendations for every learner.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="container" style="padding: 3rem 1.5rem 5rem 1.5rem;">
+        <div class="section-header">
+            <span class="role-badge badge-faculty">STEP-BY-STEP PROCESS</span>
+            <h2>How EduPredict Works</h2>
+            <p>A closed-loop, data-driven cycle from initial data ingestion to measurable academic improvement.</p>
+        </div>
+
+        <div class="steps-grid-5">
+            <div class="step-item">
+                <div class="step-circle">1</div>
+                <h4>Collect Data</h4>
+                <p>Ingests attendance records, continuous test scores, practicals, and assignment completions.</p>
+            </div>
+
+            <div class="step-item">
+                <div class="step-circle">2</div>
+                <h4>Analyze Performance</h4>
+                <p>Aggregates multi-dimensional metrics across subjects and detects early signs of academic difficulty.</p>
+            </div>
+
+            <div class="step-item">
+                <div class="step-circle">3</div>
+                <h4>Predict Outcomes</h4>
+                <p>Random Forest Regressor forecasts final examination percentages and classifies academic risk levels.</p>
+            </div>
+
+            <div class="step-item">
+                <div class="step-circle">4</div>
+                <h4>Generate Advice</h4>
+                <p>Formulates specific, constructive action items for students, teachers, and verified parents.</p>
+            </div>
+
+            <div class="step-item">
+                <div class="step-circle">5</div>
+                <h4>Monitor Growth</h4>
+                <p>Continuously re-evaluates trajectories as new marks are logged, celebrating authentic progress.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="container" style="padding: 2rem 1.5rem 4rem 1.5rem;">
+        <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 3rem 2.5rem; box-shadow: var(--shadow-md);">
+            <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 3rem; align-items: center;">
+                <div>
+                    <span class="role-badge badge-student">ABOUT EDUPREDICT</span>
+                    <h2 style="font-size: 2.2rem; margin: 0.5rem 0 1rem 0;">Empowering Every Learner Before It's Too Late</h2>
+                    <p style="color: var(--muted-text); font-size: 1.05rem; line-height: 1.7; margin-bottom: 1.2rem;">
+                        In conventional university portals, student underperformance is typically identified only after final semester examinations—leaving zero time for remediation. 
+                    </p>
+                    <p style="color: var(--muted-text); font-size: 1.05rem; line-height: 1.7; margin-bottom: 1.5rem;">
+                        <b>EduPredict</b> replaces retroactive grade-posting with proactive predictive guidance. By unifying students, faculty, and parents on a shared platform, we ensure vulnerable students receive targeted tutoring and encouragement weeks before examination halls open.
+                    </p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <a href="http://localhost:5000/register" target="_blank" class="btn btn-primary">Join EduPredict (Localhost)</a>
+                        <a href="https://github.com/meghanareddy-png/EduPredict" target="_blank" class="btn btn-secondary">⭐ Star on GitHub</a>
+                    </div>
+                </div>
+                <div style="background: var(--bg-page); border: 1.5px solid var(--border-purple); border-radius: 16px; padding: 2rem; text-align: center;">
+                    <img src="static/images/edupredict-logo.png" alt="EduPredict Emblem" style="max-width: 180px; margin-bottom: 1rem;">
+                    <h3 style="font-size: 1.3rem; color: var(--dark-purple);">Predict. Perform. Progress.</h3>
+                    <p style="color: var(--muted-text); font-size: 0.88rem; margin-top: 0.5rem;">
+                        Commercial-grade architecture built with Python Flask, MySQL / SQLite, Scikit-learn, and Chart.js.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="container" style="padding: 2rem 1.5rem 5rem 1.5rem;">
+        <div class="section-header">
+            <span class="role-badge badge-faculty">GET IN TOUCH</span>
+            <h2>Contact EduPredict Institutional Support</h2>
+            <p>Have questions about integrating EduPredict at your institution? Reach out to our technical team.</p>
+        </div>
+
+        <div style="max-width: 600px; margin: 0 auto; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 18px; padding: 2.2rem; box-shadow: var(--shadow-md);">
+            <form onsubmit="event.preventDefault(); alert('Thank you for contacting EduPredict! A representative will reach out shortly.');">
+                <div class="form-group">
+                    <label class="form-label">Your Name</label>
+                    <input type="text" class="form-control" placeholder="e.g. Dr. Rajesh Kumar" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Institutional Email</label>
+                    <input type="email" class="form-control" placeholder="name@university.edu" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Inquiry Message</label>
+                    <textarea class="form-control" rows="4" placeholder="How can we assist your faculty or student department?" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Send Inquiry</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="static/images/edupredict-logo.png" alt="EduPredict Small Logo" style="height: 34px;">
+                <div>
+                    <b style="font-size: 1.05rem; color: var(--dark-purple);">EduPredict</b>
+                    <p style="font-size: 0.78rem; color: var(--muted-text);">Predict. Perform. Progress. &bull; &copy; 2026</p>
+                </div>
+            </div>
+            <div style="font-size: 0.85rem; color: var(--muted-text);">
+                AI-Powered Student Academic Performance Prediction and Monitoring System
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="static/js/main.js"></script>
+    <script>
+        // Interactive Client-Side Future Score Simulator
+        const inInternal = document.getElementById('sim_internal');
+        const inAtt = document.getElementById('sim_attendance');
+        const inAssign = document.getElementById('sim_assignment');
+        const inHours = document.getElementById('sim_hours');
+
+        const valInternal = document.getElementById('val_internal');
+        const valAtt = document.getElementById('val_attendance');
+        const valAssign = document.getElementById('val_assignment');
+        const valHours = document.getElementById('val_hours');
+
+        const outScore = document.getElementById('sim_score');
+        const outBadge = document.getElementById('sim_badge');
+        const outRec = document.getElementById('sim_recommendation');
+
+        function updateSimulator() {
+            const internal = parseFloat(inInternal.value);
+            const attendance = parseFloat(inAtt.value);
+            const assignment = parseFloat(inAssign.value);
+            const hours = parseFloat(inHours.value);
+
+            valInternal.textContent = internal + '%';
+            valAtt.textContent = attendance + '%';
+            valAssign.textContent = assignment + '%';
+            valHours.textContent = hours + ' hrs';
+
+            // ML formula model estimation
+            let score = 0.35 * internal + 0.25 * 72.0 + 0.18 * 75.0 + 0.12 * assignment + 0.10 * attendance + 0.8 * hours;
+            score = Math.min(99.0, Math.max(35.0, score));
+            const roundedScore = score.toFixed(1);
+
+            outScore.textContent = roundedScore + '%';
+
+            if (score >= 85.0) {
+                outBadge.textContent = "★ Distinction Tier";
+                outBadge.className = "status-badge status-ontrack";
+                outRec.textContent = "Outstanding progress! Maintain this routine and consider mentoring peers or pursuing advanced research electives.";
+            } else if (score >= 70.0) {
+                outBadge.textContent = "First Class Standing";
+                outBadge.className = "status-badge status-ontrack";
+                outRec.textContent = "Solid trajectory! Boosting daily study hours by 1-2 hours and maintaining ≥ 85% attendance can elevate you to Distinction.";
+            } else if (score >= 55.0) {
+                outBadge.textContent = "Second Class (Moderate Risk)";
+                outBadge.className = "status-badge status-support";
+                outRec.textContent = "Attention required. Attend faculty doubt-clearing sessions and complete pending assignments to recover key marks.";
+            } else {
+                outBadge.textContent = "⚠️ Remedial Intervention Required";
+                outBadge.className = "status-badge status-risk";
+                outRec.textContent = "High academic risk alert. We strongly recommend meeting your academic advisor and organizing a structured daily revision schedule.";
+            }
+        }
+
+        [inInternal, inAtt, inAssign, inHours].forEach(el => {
+            el.addEventListener('input', updateSimulator);
+        });
+
+        // Initialize
+        updateSimulator();
+    </script>
+</body>
+</html>
