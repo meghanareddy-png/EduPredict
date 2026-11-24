@@ -1,0 +1,401 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Console - EduPredict{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-user-block">
+            <div class="user-avatar-circle" style="background: linear-gradient(135deg, #F59E0B, #B45309);">
+                AD
+            </div>
+            <div style="overflow: hidden;">
+                <div style="font-weight: 700; font-size: 0.92rem; color: var(--main-text); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">System Administrator</div>
+                <div style="font-size: 0.76rem; color: var(--warning-orange); font-weight: 700;">ROOT ADMIN PRIVILEGES</div>
+            </div>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="#overview" class="sidebar-link active">📊 System Overview</a></li>
+            <li><a href="#ml-status" class="sidebar-link">🤖 ML Model Health</a></li>
+            <li><a href="#users" class="sidebar-link">👥 User Accounts ({{ total_users }})</a></li>
+            <li><a href="#academics" class="sidebar-link">📚 Departments & Subjects</a></li>
+            <li><a href="#faculty-assign" class="sidebar-link">👨‍🏫 Faculty Class Assignments</a></li>
+            <li><a href="#parent-links" class="sidebar-link">👨‍👩‍👧 Parent-Child Links</a></li>
+            <li><a href="#announcements" class="sidebar-link">📢 Broadcast Announcements</a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary btn-sm" style="width: 100%;">
+                Sign Out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <!-- Top Bar -->
+        <div class="dash-topbar" id="overview">
+            <div class="dash-greeting">
+                <h1>Administrator Console &bull; <span style="color: var(--primary-purple);">Institutional Hub</span> ⚙️</h1>
+                <p>Complete control over institutional departments, user permissions, faculty assignments, and ML predictive pipelines.</p>
+            </div>
+
+            <div class="dash-actions-row">
+                <!-- Quick Role Switcher -->
+                <div class="role-switcher-bar">
+                    <span style="font-size: 0.72rem; color: var(--muted-text); font-weight: 700; margin: 0 8px;">VIEW AS:</span>
+                    <a href="{{ url_for('auth.demo_login', role='student') }}" class="role-pill">📚 Student</a>
+                    <a href="{{ url_for('auth.demo_login', role='faculty') }}" class="role-pill">🎓 Faculty</a>
+                    <a href="{{ url_for('auth.demo_login', role='parent') }}" class="role-pill">👨‍👩‍👧 Parent</a>
+                    <a href="{{ url_for('admin.dashboard') }}" class="role-pill active">⚙️ Admin</a>
+                </div>
+
+                <form method="POST" action="{{ url_for('admin.retrain_model') }}" style="margin: 0;">
+                    <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Retrain Scikit-learn Random Forest and classification models now?');">
+                        🔄 Retrain ML Models
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Section 8: KPI Metrics Grid -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">TOTAL USERS</div>
+                <div class="kpi-value">{{ total_users }}</div>
+                <div class="kpi-subtext">Active Accounts</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">ENROLLED STUDENTS</div>
+                <div class="kpi-value" style="color: var(--primary-purple);">{{ total_students }}</div>
+                <div class="kpi-subtext">Verified Profiles</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">FACULTY MEMBERS</div>
+                <div class="kpi-value">{{ total_faculty }}</div>
+                <div class="kpi-subtext">Teaching Staff</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">REGISTERED PARENTS</div>
+                <div class="kpi-value">{{ total_parents }}</div>
+                <div class="kpi-subtext">Family Portals</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">DEPARTMENTS</div>
+                <div class="kpi-value">{{ total_departments }}</div>
+                <div class="kpi-subtext">Academic Branches</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">COURSES & SUBJECTS</div>
+                <div class="kpi-value">{{ total_subjects }}</div>
+                <div class="kpi-subtext">Active Curriculum</div>
+            </div>
+        </div>
+
+        <!-- Section 9: Machine Learning Status Card -->
+        <div class="dash-card" id="ml-status" style="border-left: 4px solid var(--primary-purple);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <h3 style="font-size: 1.25rem;">🤖 Machine Learning Predictive Engine Status</h3>
+                    <p style="color: var(--muted-text); font-size: 0.85rem;">Scikit-learn multi-model ensemble (Random Forest, Decision Tree, Logistic Regression)</p>
+                </div>
+                <span class="status-badge status-ontrack">
+                    ✓ Model Version: {{ ml_meta.get('version', 'v1.0') }}
+                </span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.2rem;">
+                <div style="background: var(--bg-page); border: 1px solid var(--border-purple); border-radius: 12px; padding: 1rem;">
+                    <div style="font-size: 0.78rem; font-weight: 700; color: var(--muted-text);">REGRESSION R² SCORE</div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: var(--primary-purple);">
+                        {{ ml_meta.get('metrics', {}).get('regression', {}).get('r2_score', '0.914') }}
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--muted-text);">MAE: {{ ml_meta.get('metrics', {}).get('regression', {}).get('mae', '2.49') }}% &bull; Random Forest</div>
+                </div>
+
+                <div style="background: var(--bg-page); border: 1px solid var(--border-purple); border-radius: 12px; padding: 1rem;">
+                    <div style="font-size: 0.78rem; font-weight: 700; color: var(--muted-text);">RISK CLASSIFICATION ACCURACY</div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: var(--success-green);">
+                        {{ (ml_meta.get('metrics', {}).get('risk_classification', {}).get('accuracy', 0.93) * 100)|round(1) }}%
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--muted-text);">Multinomial Logistic Regression</div>
+                </div>
+
+                <div style="background: var(--bg-page); border: 1px solid var(--border-purple); border-radius: 12px; padding: 1rem;">
+                    <div style="font-size: 0.78rem; font-weight: 700; color: var(--muted-text);">CATEGORY CLASSIFIER F1</div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: var(--main-text);">
+                        {{ ml_meta.get('metrics', {}).get('performance_classification', {}).get('f1_score', '0.789') }}
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--muted-text);">Decision Tree (Distinction / 1st / 2nd / Remedial)</div>
+                </div>
+            </div>
+
+            <!-- Feature Importances -->
+            <div style="background: var(--bg-page); border: 1px solid var(--border-color); border-radius: 10px; padding: 1rem;">
+                <b style="font-size: 0.85rem; color: var(--dark-purple);">Top Predictive Feature Weights (Feature Importance):</b>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
+                    {% for feat, weight in ml_meta.get('feature_importances', {}).items() %}
+                        <span style="font-size: 0.76rem; background: var(--card-bg); border: 1px solid var(--border-purple); padding: 3px 8px; border-radius: 6px;">
+                            <b>{{ feat.replace('_', ' ').title() }}:</b> {{ (weight * 100)|round(1) }}%
+                        </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 8: User Accounts Management Table -->
+        <div class="dash-card" id="users">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
+                <h3 style="font-size: 1.2rem;">👥 User Account Directory & Permissions</h3>
+                <input type="text" id="table-search-input" class="form-control" placeholder="Search users by name, username, or role..." style="width: 250px; padding: 0.4rem 0.8rem; font-size: 0.86rem;">
+            </div>
+
+            <div class="table-responsive">
+                <table class="edu-table searchable-table">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Full Name</th>
+                            <th>Username</th>
+                            <th>Email Address</th>
+                            <th>Assigned Role</th>
+                            <th>Account Status</th>
+                            <th>Management Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                            <tr>
+                                <td>#{{ u.id }}</td>
+                                <td><b>{{ u.full_name }}</b></td>
+                                <td><code>{{ u.username }}</code></td>
+                                <td>{{ u.email }}</td>
+                                <td>
+                                    <span class="role-badge badge-{{ u.role }}">{{ u.role.upper() }}</span>
+                                </td>
+                                <td>
+                                    {% if u.is_active %}
+                                        <span class="status-badge status-low">Active</span>
+                                    {% else %}
+                                        <span class="status-badge status-high">Disabled</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if u.username != 'admin' %}
+                                        <form method="POST" action="{{ url_for('admin.toggle_user', user_id=u.id) }}" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm {% if u.is_active %}btn-secondary{% else %}btn-success{% endif %}">
+                                                {% if u.is_active %}Deactivate{% else %}Activate{% endif %}
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <span style="font-size: 0.78rem; color: var(--muted-text);">Protected Root</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section 8: Academic Configuration (Departments, Semesters, Subjects) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;" id="academics">
+            <!-- Add Department Form & List -->
+            <div class="dash-card">
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.8rem;">🏢 Academic Departments</h3>
+                <form method="POST" action="{{ url_for('admin.add_department') }}" style="display: flex; gap: 8px; margin-bottom: 1rem;">
+                    <input type="text" name="code" class="form-control" placeholder="Code (e.g. IT)" style="width: 100px;" required>
+                    <input type="text" name="name" class="form-control" placeholder="Department Name" required>
+                    <button type="submit" class="btn btn-primary btn-sm">Add</button>
+                </form>
+
+                <div class="table-responsive">
+                    <table class="edu-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Department Name</th>
+                                <th>Students</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in departments %}
+                                <tr>
+                                    <td><b>{{ d.code }}</b></td>
+                                    <td>{{ d.name }}</td>
+                                    <td>{{ d.students.count() }} enrolled</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Add Subject Form & List -->
+            <div class="dash-card">
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.8rem;">📚 Curriculum Subjects</h3>
+                <form method="POST" action="{{ url_for('admin.add_subject') }}" style="margin-bottom: 1rem;">
+                    <div style="display: grid; grid-template-columns: 100px 1fr 100px 80px; gap: 6px;">
+                        <input type="text" name="code" class="form-control" placeholder="Code" required>
+                        <input type="text" name="name" class="form-control" placeholder="Subject Name" required>
+                        <select name="department_id" class="form-control" style="padding: 0.4rem;">
+                            {% for d in departments %}<option value="{{ d.id }}">{{ d.code }}</option>{% endfor %}
+                        </select>
+                        <select name="semester_id" class="form-control" style="padding: 0.4rem;">
+                            {% for s in semesters %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm" style="margin-top: 6px; width: 100%;">Add Subject to Catalog</button>
+                </form>
+
+                <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                    <table class="edu-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Subject</th>
+                                <th>Department</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in subjects %}
+                                <tr>
+                                    <td><b>{{ s.code }}</b></td>
+                                    <td>{{ s.name }}</td>
+                                    <td>{{ s.department.code if s.department else 'N/A' }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 8: Faculty-Class Assignment & Parent-Child Linking -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+            <!-- Assign Faculty to Subject & Class -->
+            <div class="dash-card" id="faculty-assign">
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.8rem;">👨‍🏫 Faculty Subject & Class Assignments</h3>
+                <form method="POST" action="{{ url_for('admin.assign_faculty') }}" style="margin-bottom: 1rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 6px;">
+                        <select name="faculty_id" class="form-control" required>
+                            <option value="">Select Faculty...</option>
+                            {% for f in faculty_list %}
+                                <option value="{{ f.id }}">{{ f.full_name }} ({{ f.faculty_id }})</option>
+                            {% endfor %}
+                        </select>
+                        <select name="subject_id" class="form-control" required>
+                            <option value="">Select Subject...</option>
+                            {% for s in subjects %}
+                                <option value="{{ s.id }}">{{ s.code }} - {{ s.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <input type="text" name="class_grade" class="form-control" placeholder="Class (e.g. Class CSE-3A)" value="Class CSE-3A" required>
+                        <input type="text" name="academic_year" class="form-control" value="2026-2027" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm" style="margin-top: 8px; width: 100%;">Establish Faculty Assignment</button>
+                </form>
+
+                <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                    <table class="edu-table">
+                        <thead>
+                            <tr>
+                                <th>Faculty</th>
+                                <th>Subject</th>
+                                <th>Class</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in faculty_assignments %}
+                                <tr>
+                                    <td><b>{{ a.faculty.full_name }}</b></td>
+                                    <td>{{ a.subject.name }}</td>
+                                    <td><span class="role-badge badge-faculty">{{ a.class_grade }}</span></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Parent-Student Relationship Linking -->
+            <div class="dash-card" id="parent-links">
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.8rem;">👨‍👩‍👧 Verified Parent-Student Links</h3>
+                <form method="POST" action="{{ url_for('admin.link_parent') }}" style="margin-bottom: 1rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 6px;">
+                        <select name="parent_id" class="form-control" required>
+                            <option value="">Select Parent...</option>
+                            {% for p in parent_list %}
+                                <option value="{{ p.id }}">{{ p.full_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="student_id" class="form-control" required>
+                            <option value="">Select Student...</option>
+                            {% for s in student_list %}
+                                <option value="{{ s.id }}">{{ s.full_name }} ({{ s.student_id }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" name="relationship" class="form-control" placeholder="Relationship (Father, Mother, Guardian)" value="Parent/Guardian">
+                        <button type="submit" class="btn btn-primary btn-sm">Verify Link</button>
+                    </div>
+                </form>
+
+                <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                    <table class="edu-table">
+                        <thead>
+                            <tr>
+                                <th>Parent</th>
+                                <th>Linked Child</th>
+                                <th>Relationship</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pl in parent_links %}
+                                <tr>
+                                    <td><b>{{ pl.parent.full_name }}</b></td>
+                                    <td>{{ pl.student.full_name }} ({{ pl.student.student_id }})</td>
+                                    <td><span class="status-badge status-low">✓ {{ pl.relationship_type }}</span></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 8: Broadcast Announcements -->
+        <div class="dash-card" id="announcements">
+            <h3 style="font-size: 1.15rem; margin-bottom: 0.8rem;">📢 Broadcast Institutional Announcements</h3>
+            <p style="font-size: 0.85rem; color: var(--muted-text); margin-bottom: 1rem;">
+                Send real-time in-app notification alerts to all users or specific roles.
+            </p>
+            <form method="POST" action="{{ url_for('admin.broadcast_announcement') }}">
+                <div style="display: grid; grid-template-columns: 1fr 200px; gap: 1rem; margin-bottom: 0.8rem;">
+                    <input type="text" name="title" class="form-control" placeholder="Announcement Title (e.g. Midterm Examination Schedule Released)" required>
+                    <select name="target_role" class="form-control">
+                        <option value="all">Broadcast to All Users</option>
+                        <option value="student">Students Only</option>
+                        <option value="faculty">Faculty Only</option>
+                        <option value="parent">Parents Only</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <textarea name="message" class="form-control" rows="2" placeholder="Write announcement notification message..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">Publish Announcement</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

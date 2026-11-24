@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}Parent Portal - EduPredict{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-user-block">
+            <div class="user-avatar-circle">
+                {{ parent.full_name[:2].upper() }}
+            </div>
+            <div style="overflow: hidden;">
+                <div style="font-weight: 700; font-size: 0.92rem; color: var(--main-text); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">{{ parent.full_name }}</div>
+                <div style="font-size: 0.76rem; color: var(--primary-purple); font-weight: 600;">Parent / Guardian Portal</div>
+            </div>
+        </div>
+
+        <!-- Child Selector (Section 6) -->
+        {% if children|length > 1 %}
+            <div style="margin-bottom: 1.2rem;">
+                <label style="font-size: 0.78rem; font-weight: 700; color: var(--muted-text); text-transform: uppercase;">Linked Child:</label>
+                <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
+                    {% for c in children %}
+                        <a href="{{ url_for('parent.dashboard', child_id=c.id) }}" class="btn btn-sm {% if active_child and active_child.id == c.id %}btn-primary{% else %}btn-secondary{% endif %}" style="text-align: left; justify-content: flex-start;">
+                            👤 {{ c.full_name }} ({{ c.student_id }})
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <ul class="sidebar-nav">
+            <li><a href="#overview" class="sidebar-link active">📊 Academic Overview</a></li>
+            <li><a href="#marks" class="sidebar-link">📝 Subject Marks</a></li>
+            <li><a href="#attendance" class="sidebar-link">📅 Attendance Monitoring</a></li>
+            <li><a href="#feedback" class="sidebar-link">💬 Faculty Direct Feedback</a></li>
+            <li><a href="#hometips" class="sidebar-link">🏡 Home Support Tips</a></li>
+            <li><a href="#alerts" class="sidebar-link">🔔 Alerts & Notices</a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            {% if active_child %}
+                <a href="{{ url_for('parent.download_report', student_id=active_child.id) }}" class="btn btn-primary btn-sm" style="width: 100%; margin-bottom: 8px;">
+                    📥 Download Progress Report
+                </a>
+            {% endif %}
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary btn-sm" style="width: 100%;">
+                Sign Out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        {% if not active_child %}
+            <div class="dash-card" style="text-align: center; padding: 3rem;">
+                <h3>No Linked Student Verified</h3>
+                <p style="color: var(--muted-text); margin-top: 0.5rem;">Please contact the institutional administration office to link and verify your child's student record.</p>
+            </div>
+        {% else %}
+            <!-- Top Bar -->
+            <div class="dash-topbar" id="overview">
+                <div class="dash-greeting">
+                    <h1>Monitoring: <span style="color: var(--primary-purple);">{{ active_child.full_name }}</span> 🎓</h1>
+                    <p>Student ID: <b>{{ active_child.student_id }}</b> &bull; Class: <b>{{ active_child.class_grade }}</b> &bull; Department: <b>{{ active_child.department.name if active_child.department else 'CSE' }}</b></p>
+                </div>
+
+                <div class="dash-actions-row">
+                    <!-- Quick Role Switcher -->
+                    <div class="role-switcher-bar">
+                        <span style="font-size: 0.72rem; color: var(--muted-text); font-weight: 700; margin: 0 8px;">VIEW AS:</span>
+                        <a href="{{ url_for('auth.demo_login', role='student') }}" class="role-pill">📚 Student</a>
+                        <a href="{{ url_for('auth.demo_login', role='faculty') }}" class="role-pill">🎓 Faculty</a>
+                        <a href="{{ url_for('parent.dashboard') }}" class="role-pill active">👨‍👩‍👧 Parent</a>
+                        <a href="{{ url_for('auth.demo_login', role='admin') }}" class="role-pill">⚙️ Admin</a>
+                    </div>
+
+                    <a href="{{ url_for('parent.download_report', student_id=active_child.id) }}" class="btn btn-primary btn-sm">
+                        📥 Download Official Report (PDF)
+                    </a>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">ATTENDANCE RATE</div>
+                    <div class="kpi-value" style="color: {% if analytics.attendance_pct >= 75 %}var(--success-green){% else %}var(--danger-red){% endif %};">
+                        {{ analytics.attendance_pct }}%
+                    </div>
+                    <div class="kpi-subtext">Required: ≥ 75%</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">INTERNAL MARKS</div>
+                    <div class="kpi-value">{{ analytics.avg_internal_pct }}%</div>
+                    <div class="kpi-subtext">Continuous average</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">ASSIGNMENTS</div>
+                    <div class="kpi-value">{{ analytics.assignment_pct }}%</div>
+                    <div class="kpi-subtext">{{ analytics.completed_assignments }}/{{ analytics.total_assignments }} submitted</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">PREDICTED SCORE</div>
+                    <div class="kpi-value" style="color: var(--primary-purple);">{{ analytics.predicted_score }}%</div>
+                    <div class="kpi-subtext">{{ analytics.performance_category }}</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">ACADEMIC RISK</div>
+                    <div class="kpi-value">
+                        <span class="status-badge status-{{ analytics.risk_level.lower() }}">
+                            {{ analytics.risk_level.upper() }}
+                        </span>
+                    </div>
+                    <div class="kpi-subtext">Automated AI Status</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-label">TOTAL SUBJECTS</div>
+                    <div class="kpi-value">{{ analytics.total_subjects }}</div>
+                    <div class="kpi-subtext">Enrolled Courses</div>
+                </div>
+            </div>
+
+            <!-- Visual Charts Grid -->
+            <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="dash-card">
+                    <h3 style="font-size: 1.15rem; margin-bottom: 1rem;">📈 Child's Continuous Assessment Marks</h3>
+                    <div style="height: 250px;">
+                        <canvas id="parentSubjectChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="dash-card">
+                    <h3 style="font-size: 1.15rem; margin-bottom: 1rem;">📅 Monthly Attendance Trend</h3>
+                    <div style="height: 250px;">
+                        <canvas id="parentAttendanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject Marks Detailed Table -->
+            <div class="dash-card" id="marks">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="font-size: 1.15rem;">📝 Subject Examination Marks & Grades</h3>
+                    <span style="font-size: 0.82rem; color: var(--muted-text);">Verified Institutional Records</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="edu-table">
+                        <thead>
+                            <tr>
+                                <th>Subject Code</th>
+                                <th>Subject Name</th>
+                                <th>Examination</th>
+                                <th>Score Scored</th>
+                                <th>Max Marks</th>
+                                <th>Percentage</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in marks_list %}
+                                {% set pct = (m.marks_obtained|float / m.max_marks|float) * 100 %}
+                                <tr>
+                                    <td><b>{{ m.subject.code }}</b></td>
+                                    <td>{{ m.subject.name }}</td>
+                                    <td>{{ m.exam_type }}</td>
+                                    <td><b>{{ m.marks_obtained }}</b></td>
+                                    <td>{{ m.max_marks }}</td>
+                                    <td>
+                                        <b style="color: {% if pct >= 75 %}var(--success-green){% elif pct >= 60 %}var(--warning-orange){% else %}var(--danger-red){% endif %};">
+                                            {{ "%.1f"|format(pct) }}%
+                                        </b>
+                                    </td>
+                                    <td style="color: var(--muted-text); font-size: 0.82rem;">{{ m.remarks or 'Standard performance' }}</td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="7" style="text-align: center; color: var(--muted-text);">No marks recorded yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Faculty Direct Feedback & Home Support Tips -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;" id="feedback">
+                <div class="dash-card">
+                    <h3 style="font-size: 1.15rem; margin-bottom: 1rem;">💬 Faculty Direct Notes for Parents</h3>
+                    {% for fb in feedback_list %}
+                        <div style="background: var(--bg-page); border-left: 3px solid var(--primary-purple); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted-text);">
+                                <b>{{ fb.faculty.full_name }}</b>
+                                <span>{{ fb.created_at.strftime('%b %d') }}</span>
+                            </div>
+                            <p style="font-size: 0.9rem; color: var(--main-text); margin-top: 4px;">"{{ fb.feedback_text }}"</p>
+                        </div>
+                    {% else %}
+                        <p style="color: var(--muted-text); font-size: 0.88rem;">No formal faculty feedback logged yet.</p>
+                    {% endfor %}
+                </div>
+
+                <div class="dash-card" id="hometips">
+                    <h3 style="font-size: 1.15rem; margin-bottom: 1rem;">🏡 Actionable Home Learning Support Tips</h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        {% for rec in analytics.recommendations %}
+                            <div style="background: var(--bg-page); border: 1px solid var(--border-purple); border-radius: 8px; padding: 10px 14px;">
+                                <b style="font-size: 0.84rem; color: var(--primary-purple);">Tip #{{ loop.index }}:</b>
+                                <p style="font-size: 0.88rem; color: var(--main-text); margin-top: 2px;">{{ rec }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts for Parents -->
+            <div class="dash-card" id="alerts" style="margin-top: 1.5rem;">
+                <h3 style="font-size: 1.15rem; margin-bottom: 1rem;">🔔 Alerts & Announcements</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                    {% for n in notifications %}
+                        <div style="background: var(--bg-page); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.76rem; color: var(--muted-text);">
+                                <span class="role-badge badge-parent">{{ n.notification_type }}</span>
+                                <span>{{ n.created_at.strftime('%b %d') }}</span>
+                            </div>
+                            <b style="font-size: 0.9rem; color: var(--main-text); margin-top: 4px; display: block;">{{ n.title }}</b>
+                            <p style="font-size: 0.82rem; color: var(--muted-text); margin-top: 2px;">{{ n.message }}</p>
+                        </div>
+                    {% else %}
+                        <p style="color: var(--muted-text); font-size: 0.88rem;">No unread parent alerts.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const chartSubs = {{ chart_subjects | tojson }};
+    const chartScores = {{ chart_subject_scores | tojson }};
+    if (chartSubs && chartSubs.length > 0) {
+        EduCharts.renderSubjectBarChart('parentSubjectChart', chartSubs, chartScores);
+    }
+
+    const months = ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'];
+    const attVals = [86, 88, 90, 89, {{ analytics.attendance_pct }}, {{ analytics.attendance_pct }}];
+    EduCharts.renderAttendanceLineChart('parentAttendanceChart', months, attVals);
+});
+</script>
+{% endblock %}

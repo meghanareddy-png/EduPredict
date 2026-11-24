@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %}EduPredict - Predict Better. Perform Better. Build a Brighter Future.{% endblock %}
+
+{% block content %}
+
+<!-- ==========================================================================
+     SECTION 2: ANIMATED SPLASH SCREEN
+     Visible for exactly 3 seconds on initial visit, smooth zoom-in & glowing effect
+     ========================================================================== -->
+<div id="splash-screen">
+    <div class="splash-content">
+        <img src="{{ url_for('static', filename='images/edupredict-logo.png') }}" alt="EduPredict Logo" class="splash-logo">
+        <h1 class="splash-title">Edu<span>Predict</span></h1>
+        <p class="splash-tagline">Predict. Perform. Progress.</p>
+        <div class="splash-loader">
+            <div class="splash-loader-bar"></div>
+        </div>
+        <p style="color: rgba(255,255,255,0.7); font-size: 0.8rem; margin-top: 1rem;">
+            Initializing Intelligent Academic Platform...
+        </p>
+    </div>
+</div>
+
+<!-- ==========================================================================
+     SECTION 3: HOMEPAGE HERO SECTION
+     ========================================================================== -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-pill">
+            ✨ AI-POWERED STUDENT ACADEMIC MONITORING & PREDICTION SYSTEM
+        </div>
+
+        <h1 class="hero-title">
+            Predict Better. Perform Better.<br>
+            <span>Build a Brighter Future.</span>
+        </h1>
+
+        <p class="hero-desc">
+            An intelligent academic monitoring platform that connects students, parents, and faculty through AI-powered academic predictions, early risk detection, and personalized pedagogical insights.
+        </p>
+
+        <div class="hero-buttons">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Get Started</a>
+            <a href="#features" class="btn btn-secondary btn-lg">Explore Features</a>
+            <a href="#demo-access" class="btn btn-outline-purple btn-lg">⚡ Instant 1-Click Demo</a>
+        </div>
+
+        <!-- Attractive Dashboard Preview Card -->
+        <div class="hero-preview">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; margin-bottom: 1.2rem;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="width: 12px; height: 12px; border-radius: 50%; background: #EF4444; display: inline-block;"></span>
+                    <span style="width: 12px; height: 12px; border-radius: 50%; background: #F59E0B; display: inline-block;"></span>
+                    <span style="width: 12px; height: 12px; border-radius: 50%; background: #10B981; display: inline-block;"></span>
+                    <span style="font-size: 0.82rem; font-weight: 700; color: var(--muted-text); margin-left: 8px;">EduPredict AI Analytics Console Preview</span>
+                </div>
+                <span class="status-badge status-ontrack">🟢 Random Forest Model Active (R²: 0.914)</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; text-align: left;">
+                <div style="background: var(--bg-page); border: 1px solid var(--border-purple); border-radius: 12px; padding: 1rem;">
+                    <div style="font-size: 0.76rem; color: var(--muted-text); font-weight: 700;">PREDICTED EXAM SCORE</div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: var(--primary-purple); margin: 4px 0;">90.5%</div>
+                    <div style="font-size: 0.74rem; color: var(--success-green); font-weight: 600;">★ Distinction Tier</div>
+                </div>
+                <div style="background: var(--bg-page); border: 1px solid var(--border-purple); border-radius: 12px; padding: 1rem;">
+                    <div style="font-size: 0.76rem; color: var(--muted-text); font-weight: 700;">ATTENDANCE METRIC</div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: var(--main-text); margin: 4px 0;">92.0%</div>
+                    <div style="font-size: 0.74rem; color: var(--success-green); font-weight: 600;">Benchmark: ≥ 75% Met</div>
+                </div>
+                <div style="background: var(--bg-page); border: 1px solid var(--border-purple); border-radius: 12px; padding: 1rem;">
+                    <div style="font-size: 0.76rem; color: var(--muted-text); font-weight: 700;">ASSIGNMENT DISCIPLINE</div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: var(--main-text); margin: 4px 0;">94.3%</div>
+                    <div style="font-size: 0.74rem; color: var(--primary-purple); font-weight: 600;">Coursework Submissions</div>
+                </div>
+                <div style="background: var(--bg-page); border: 1px solid var(--border-purple); border-radius: 12px; padding: 1rem;">
+                    <div style="font-size: 0.76rem; color: var(--muted-text); font-weight: 700;">EARLY RISK STATUS</div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: var(--success-green); margin: 4px 0;">LOW</div>
+                    <div style="font-size: 0.74rem; color: var(--muted-text);">Multi-factor AI Evaluation</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================================================
+     1-CLICK DEMO ACCESS CARDS (Effortless Evaluation for Evaluators & Users)
+     ========================================================================== -->
+<section id="demo-access" class="demo-launchers-section container">
+    <div class="section-header">
+        <span class="role-badge badge-faculty">EASY TEST DRIVE</span>
+        <h2>Explore EduPredict In 1 Click</h2>
+        <p>No typing required. Click any stakeholder role below to launch the live platform with complete real academic data.</p>
+    </div>
+
+    <div class="demo-cards-grid">
+        <!-- Faculty Demo -->
+        <div class="demo-role-card">
+            <div>
+                <span class="role-badge badge-faculty">🎓 Faculty Console</span>
+                <h3>Prof. Rajesh Sharma</h3>
+                <div class="demo-role-user">Class CSE-3A Instructor &bull; CSE Dept</div>
+                <p class="demo-role-desc">
+                    Manage student rosters, enter exam marks, log attendance, review AI early risk predictions, and export analytical reports.
+                </p>
+            </div>
+            <a href="{{ url_for('auth.demo_login', role='faculty') }}" class="btn btn-primary" style="width: 100%;">
+                ⚡ Open Faculty Dashboard
+            </a>
+        </div>
+
+        <!-- Student Demo -->
+        <div class="demo-role-card">
+            <div>
+                <span class="role-badge badge-student">📚 Student Hub</span>
+                <h3>Aarav Patel</h3>
+                <div class="demo-role-user">STU1001 &bull; 3rd Year CSE (On Track)</div>
+                <p class="demo-role-desc">
+                    Track your personal progress, inspect teacher feedback, view weak areas, and simulate future outcomes with the interactive "What If" planner.
+                </p>
+            </div>
+            <a href="{{ url_for('auth.demo_login', role='student') }}" class="btn btn-primary" style="width: 100%;">
+                ⚡ Open Student Dashboard
+            </a>
+        </div>
+
+        <!-- Parent Demo -->
+        <div class="demo-role-card">
+            <div>
+                <span class="role-badge badge-parent">👨‍👩‍👧 Parent Portal</span>
+                <h3>Suresh Patel</h3>
+                <div class="demo-role-user">Verified Father of Aarav Patel</div>
+                <p class="demo-role-desc">
+                    Monitor your child's attendance trends, review continuous marks, receive early alerts, and download official progress reports.
+                </p>
+            </div>
+            <a href="{{ url_for('auth.demo_login', role='parent') }}" class="btn btn-primary" style="width: 100%;">
+                ⚡ Open Parent Portal
+            </a>
+        </div>
+
+        <!-- Admin Demo -->
+        <div class="demo-role-card">
+            <div>
+                <span class="role-badge badge-admin">⚙️ Administrator</span>
+                <h3>System Administrator</h3>
+                <div class="demo-role-user">Root Administrative Control</div>
+                <p class="demo-role-desc">
+                    Full system administration: manage users, departments, subjects, faculty-class assignments, parent links, and ML model retraining.
+                </p>
+            </div>
+            <a href="{{ url_for('auth.demo_login', role='admin') }}" class="btn btn-primary" style="width: 100%;">
+                ⚡ Open Admin Console
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================================================
+     FEATURES SECTION (Section 3 Requirements)
+     1. AI Academic Prediction
+     2. Student Performance Monitoring
+     3. Attendance Tracking
+     4. Parent Monitoring
+     5. Faculty Analytics
+     6. Personalized Study Recommendations
+     ========================================================================== -->
+<section id="features" class="container" style="padding: 4rem 1.5rem;">
+    <div class="section-header">
+        <span class="role-badge badge-student">CORE CAPABILITIES</span>
+        <h2>Comprehensive Academic Intelligence</h2>
+        <p>Built with enterprise machine learning and multi-tenant security to elevate student success.</p>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">🔮</div>
+            <h3>1. AI Academic Prediction</h3>
+            <p>Trained Scikit-learn regression and classification models evaluate attendance, continuous assessments, and study discipline to project terminal examination trajectories weeks in advance.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">📈</div>
+            <h3>2. Student Performance Monitoring</h3>
+            <p>Comprehensive tracking of internal tests, practicals, and assignments with interactive Chart.js visualizations that reveal growth trajectories and milestone achievements.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">📅</div>
+            <h3>3. Attendance Tracking</h3>
+            <p>Automated daily attendance logs with instant threshold warnings. Directly correlates lecture attendance with predicted final grade outcomes.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">👨‍👩‍👧</div>
+            <h3>4. Parent Monitoring</h3>
+            <p>Verified parent-student relationships offer families transparent, real-time observation of attendance, scores, teacher feedback, and downloadable PDF progress reports.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">📊</div>
+            <h3>5. Faculty Analytics</h3>
+            <p>Empowers teachers with class-wide risk heatmaps, low-attendance filters, quick marks logging, assignment management, and personalized student feedback tools.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">💡</div>
+            <h3>6. Personalized Study Recommendations</h3>
+            <p>Automated pedagogical weakness detection generates tailored, constructive study habit adjustments and faculty consultation recommendations for every learner.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================================================
+     HOW IT WORKS SECTION (Section 3 Requirements)
+     Step 1: Collect academic information.
+     Step 2: Analyze student performance.
+     Step 3: Predict future academic outcomes.
+     Step 4: Generate personalized recommendations.
+     Step 5: Monitor academic improvement.
+     ========================================================================== -->
+<section id="how-it-works" class="container" style="padding: 3rem 1.5rem 5rem 1.5rem;">
+    <div class="section-header">
+        <span class="role-badge badge-faculty">STEP-BY-STEP PROCESS</span>
+        <h2>How EduPredict Works</h2>
+        <p>A closed-loop, data-driven cycle from initial data ingestion to measurable academic improvement.</p>
+    </div>
+
+    <div class="steps-grid-5">
+        <div class="step-item">
+            <div class="step-circle">1</div>
+            <h4>Collect Data</h4>
+            <p>Ingests attendance records, continuous test scores, practicals, and assignment completions.</p>
+        </div>
+
+        <div class="step-item">
+            <div class="step-circle">2</div>
+            <h4>Analyze Performance</h4>
+            <p>Aggregates multi-dimensional metrics across subjects and detects early signs of academic difficulty.</p>
+        </div>
+
+        <div class="step-item">
+            <div class="step-circle">3</div>
+            <h4>Predict Outcomes</h4>
+            <p>Random Forest Regressor forecasts final examination percentages and classifies academic risk levels.</p>
+        </div>
+
+        <div class="step-item">
+            <div class="step-circle">4</div>
+            <h4>Generate Advice</h4>
+            <p>Formulates specific, constructive action items for students, teachers, and verified parents.</p>
+        </div>
+
+        <div class="step-item">
+            <div class="step-circle">5</div>
+            <h4>Monitor Growth</h4>
+            <p>Continuously re-evaluates trajectories as new marks are logged, celebrating authentic progress.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================================================
+     ABOUT & BENEFITS SECTION
+     ========================================================================== -->
+<section id="about" class="container" style="padding: 2rem 1.5rem 4rem 1.5rem;">
+    <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 3rem 2.5rem; box-shadow: var(--shadow-md);">
+        <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 3rem; align-items: center;">
+            <div>
+                <span class="role-badge badge-student">ABOUT EDUPREDICT</span>
+                <h2 style="font-size: 2.2rem; margin: 0.5rem 0 1rem 0;">Empowering Every Learner Before It's Too Late</h2>
+                <p style="color: var(--muted-text); font-size: 1.05rem; line-height: 1.7; margin-bottom: 1.2rem;">
+                    In conventional university portals, student underperformance is typically identified only after final semester examinations—leaving zero time for remediation. 
+                </p>
+                <p style="color: var(--muted-text); font-size: 1.05rem; line-height: 1.7; margin-bottom: 1.5rem;">
+                    <b>EduPredict</b> replaces retroactive grade-posting with proactive predictive guidance. By unifying students, faculty, and parents on a shared platform, we ensure vulnerable students receive targeted tutoring and encouragement weeks before examination halls open.
+                </p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Join EduPredict Today</a>
+                    <a href="#demo-access" class="btn btn-secondary">Try Live Demo</a>
+                </div>
+            </div>
+            <div style="background: var(--bg-page); border: 1.5px solid var(--border-purple); border-radius: 16px; padding: 2rem; text-align: center;">
+                <img src="{{ url_for('static', filename='images/edupredict-logo.png') }}" alt="EduPredict Emblem" style="max-width: 180px; margin-bottom: 1rem;">
+                <h3 style="font-size: 1.3rem; color: var(--dark-purple);">Predict. Perform. Progress.</h3>
+                <p style="color: var(--muted-text); font-size: 0.88rem; margin-top: 0.5rem;">
+                    Commercial-grade architecture built with Python Flask, MySQL / SQLite, Scikit-learn, and Chart.js.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================================================
+     CONTACT SECTION
+     ========================================================================== -->
+<section id="contact" class="container" style="padding: 2rem 1.5rem 5rem 1.5rem;">
+    <div class="section-header">
+        <span class="role-badge badge-faculty">GET IN TOUCH</span>
+        <h2>Contact EduPredict Institutional Support</h2>
+        <p>Have questions about integrating EduPredict at your institution? Reach out to our technical team.</p>
+    </div>
+
+    <div style="max-width: 600px; margin: 0 auto; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 18px; padding: 2.2rem; box-shadow: var(--shadow-md);">
+        <form onsubmit="event.preventDefault(); alert('Thank you for contacting EduPredict! A representative will reach out shortly.');">
+            <div class="form-group">
+                <label class="form-label">Your Name</label>
+                <input type="text" class="form-control" placeholder="e.g. Dr. Rajesh Kumar" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Institutional Email</label>
+                <input type="email" class="form-control" placeholder="name@university.edu" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Inquiry Message</label>
+                <textarea class="form-control" rows="4" placeholder="How can we assist your faculty or student department?" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Send Inquiry</button>
+        </form>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard - EduPredict{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-user-block">
+            <div class="user-avatar-circle">
+                {{ student.full_name[:2].upper() }}
+            </div>
+            <div style="overflow: hidden;">
+                <div style="font-weight: 700; font-size: 0.92rem; color: var(--main-text); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">{{ student.full_name }}</div>
+                <div style="font-size: 0.76rem; color: var(--primary-purple); font-weight: 600;">{{ student.student_id }} &bull; {{ student.class_grade }}</div>
+            </div>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="#overview" class="sidebar-link active">📊 Academic Overview</a></li>
+            <li><a href="#performance" class="sidebar-link">📝 Subject Marks</a></li>
+            <li><a href="#attendance" class="sidebar-link">📅 Attendance Tracking</a></li>
+            <li><a href="#assignments" class="sidebar-link">📋 Assignments</a></li>
+            <li><a href="#simulator" class="sidebar-link">🔮 Future Score Simulator</a></li>
+            <li><a href="#predictions" class="sidebar-link">🤖 AI Insights & Advice</a></li>
+            <li><a href="#activities" class="sidebar-link">🏆 Activities & Events</a></li>
+            <li><a href="#notifications" class="sidebar-link">🔔 Notifications ({{ notifications|length }})</a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('student.download_report') }}" class="btn btn-primary btn-sm" style="width: 100%; margin-bottom: 8px;">
+                📥 Download PDF Report
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary btn-sm" style="width: 100%;">
+                Sign Out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <!-- Top Bar with Greeting & Quick Role Switcher -->
+        <div class="dash-topbar" id="overview">
+            <div class="dash-greeting">
+                <h1>Welcome back, <span style="color: var(--primary-purple);">{{ student.full_name }}</span>! 👋</h1>
+                <p>Track your academic trajectory, check AI predictions, and explore personalized improvement pathways.</p>
+            </div>
+
+            <div class="dash-actions-row">
+                <!-- Role Switcher for instant demonstration -->
+                <div class="role-switcher-bar" title="Quick Role Switcher for Demonstrators">
+                    <span style="font-size: 0.72rem; color: var(--muted-text); font-weight: 700; margin: 0 8px;">VIEW AS:</span>
+                    <a href="{{ url_for('student.dashboard') }}" class="role-pill active">📚 Student</a>
+                    <a href="{{ url_for('auth.demo_login', role='faculty') }}" class="role-pill">🎓 Faculty</a>
+                    <a href="{{ url_for('auth.demo_login', role='parent') }}" class="role-pill">👨‍👩‍👧 Parent</a>
+                    <a href="{{ url_for('auth.demo_login', role='admin') }}" class="role-pill">⚙️ Admin</a>
+                </div>
+
+                <a href="{{ url_for('student.download_report') }}" class="btn btn-primary btn-sm">
+                    📥 Export Report
+                </a>
+            </div>
+        </div>
+
+        <!-- Section 5: Six Core KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">TOTAL SUBJECTS</div>
+                <div class="kpi-value">{{ analytics.total_subjects }}</div>
+                <div class="kpi-subtext">Active Curriculum</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">ATTENDANCE</div>
+                <div class="kpi-value" style="color: {% if analytics.attendance_pct >= 75 %}var(--success-green){% else %}var(--danger-red){% endif %};">
+                    {{ analytics.attendance_pct }}%
+                </div>
+                <div class="kpi-subtext">Target: ≥ 75% required</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">INTERNAL MARKS AVG</div>
+                <div class="kpi-value">{{ analytics.avg_internal_pct }}%</div>
+                <div class="kpi-subtext">Continuous assessments</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">ASSIGNMENTS</div>
+                <div class="kpi-value">{{ analytics.assignment_pct }}%</div>
+                <div class="kpi-subtext">{{ analytics.completed_assignments }} / {{ analytics.total_assignments }} submitted</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">PREDICTED SCORE</div>
+                <div class="kpi-value" style="color: var(--primary-purple);">
+                    {{ analytics.predicted_score }}%
+                </div>
+                <div class="kpi-subtext">{{ analytics.performance_category }}</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">ACADEMIC RISK</div>
+                <div class="kpi-value">
+                    <span class="status-badge status-{{ analytics.risk_level.lower() }}">
+                        {{ analytics.risk_level.upper() }}
+                    </span>
+                </div>
+                <div class="kpi-subtext">AI Multi-factor Eval</div>
+            </div>
+        </div>
+
+        <!-- Section 10: Future Score Simulator (Prominently Placed for Interactive Student Agency) -->
+        <div class="simulator-card" id="simulator">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <span class="role-badge badge-student">✨ UNIQUE INTERACTIVE FEATURE</span>
+                    <h2 style="font-size: 1.6rem; color: var(--dark-purple); margin: 4px 0 2px 0;">Future Score Simulator</h2>
+                    <p style="color: var(--muted-text); font-size: 0.88rem;">
+                        Adjust the sliders below to see how boosting attendance, internal marks, and study hours changes your projected academic trajectory.
+                    </p>
+                </div>
+                <span style="font-size: 0.78rem; background: #EDE9FE; color: var(--primary-purple); padding: 4px 12px; border-radius: var(--radius-full); font-weight: 700;">
+                    🤖 Live Scikit-learn Model Connected
+                </span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1.3fr 0.9fr; gap: 2rem; align-items: center;">
+                <!-- Sliders Column -->
+                <div>
+                    <div class="sim-slider-row">
+                        <div class="sim-slider-label">
+                            <span>Expected Internal Examination Marks</span>
+                            <span class="sim-slider-val" id="val-internal">{{ analytics.avg_internal_pct }}%</span>
+                        </div>
+                        <input type="range" class="sim-range" id="sim-slider-internal" min="40" max="100" value="{{ analytics.avg_internal_pct }}" step="1">
+                    </div>
+
+                    <div class="sim-slider-row">
+                        <div class="sim-slider-label">
+                            <span>Expected Attendance Rate</span>
+                            <span class="sim-slider-val" id="val-attendance">{{ analytics.attendance_pct }}%</span>
+                        </div>
+                        <input type="range" class="sim-range" id="sim-slider-attendance" min="45" max="100" value="{{ analytics.attendance_pct }}" step="1">
+                    </div>
+
+                    <div class="sim-slider-row">
+                        <div class="sim-slider-label">
+                            <span>Assignment Completion Rate</span>
+                            <span class="sim-slider-val" id="val-assignment">{{ analytics.assignment_pct }}%</span>
+                        </div>
+                        <input type="range" class="sim-range" id="sim-slider-assignment" min="40" max="100" value="{{ analytics.assignment_pct }}" step="1">
+                    </div>
+
+                    <div class="sim-slider-row">
+                        <div class="sim-slider-label">
+                            <span>Practical Lab Marks</span>
+                            <span class="sim-slider-val" id="val-practical">{{ analytics.practical_pct }}%</span>
+                        </div>
+                        <input type="range" class="sim-range" id="sim-slider-practical" min="40" max="100" value="{{ analytics.practical_pct }}" step="1">
+                    </div>
+
+                    <div class="sim-slider-row">
+                        <div class="sim-slider-label">
+                            <span>Daily Dedicated Study Hours</span>
+                            <span class="sim-slider-val" id="val-hours">2.5 hrs</span>
+                        </div>
+                        <input type="range" class="sim-range" id="sim-slider-hours" min="0.5" max="8.0" value="2.5" step="0.5">
+                    </div>
+                </div>
+
+                <!-- Simulation Output Box -->
+                <div class="sim-comparison-card">
+                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--muted-text); text-transform: uppercase;">
+                        Simulated Projected Score
+                    </div>
+                    <div class="sim-score-display" id="sim-result-score">
+                        {{ analytics.predicted_score }}%
+                    </div>
+                    <div id="sim-result-delta" class="score-delta-badge delta-neutral" style="margin-bottom: 0.8rem;">
+                        — Baseline Score
+                    </div>
+                    <div>
+                        <span id="sim-result-category" style="font-weight: 700; font-size: 0.95rem; color: var(--main-text);">
+                            {{ analytics.performance_category }}
+                        </span>
+                        <div style="margin-top: 6px;">
+                            <span id="sim-result-risk" class="status-badge status-{{ analytics.risk_level.lower() }}">
+                                {{ analytics.risk_level }} Risk
+                            </span>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.74rem; color: var(--muted-text); margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 0.6rem;">
+                        ⚠️ Estimates are educational forecasts based on the trained model and do not guarantee final examination results.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section A & B: Charts Grid (Chart.js Visualizations) -->
+        <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 1.5rem; margin-bottom: 2rem;">
+            <!-- Subject-Wise Marks Bar Chart -->
+            <div class="dash-card" id="performance">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="font-size: 1.15rem;">📈 Subject-Wise Examination Performance</h3>
+                    <span style="font-size: 0.78rem; color: var(--muted-text);">Continuous Assessment Avg</span>
+                </div>
+                <div style="height: 260px;">
+                    <canvas id="subjectMarksChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Attendance Line Chart -->
+            <div class="dash-card" id="attendance">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="font-size: 1.15rem;">📅 Attendance Trajectory</h3>
+                    <span style="font-size: 0.78rem; color: var(--muted-text);">Institutional Target: 75%</span>
+                </div>
+                <div style="height: 260px;">
+                    <canvas id="attendanceLineChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section D: AI Predictions, Weakness Detection & Recommendations -->
+        <div class="dash-card" id="predictions" style="border-left: 4px solid var(--primary-purple);">
+            <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">🤖 AI Academic Risk Assessment & Recommendations</h3>
+            <p style="color: var(--muted-text); font-size: 0.88rem; margin-bottom: 1.2rem;">
+                Generated by the EduPredict Random Forest ensemble model based on attendance, marks, and coursework discipline.
+            </p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem; margin-bottom: 1rem;">
+                <div style="background: var(--bg-page); border: 1px solid var(--border-purple); border-radius: var(--radius-md); padding: 1.2rem;">
+                    <b style="font-size: 0.88rem; color: var(--dark-purple);">Identified Weakness & Focus Areas:</b>
+                    <p style="font-size: 0.92rem; color: var(--main-text); margin-top: 6px; line-height: 1.5;">
+                        {{ analytics.weak_areas }}
+                    </p>
+                </div>
+
+                <div style="background: var(--bg-page); border: 1px solid var(--border-purple); border-radius: var(--radius-md); padding: 1.2rem;">
+                    <b style="font-size: 0.88rem; color: var(--primary-purple);">Personalized Action Recommendations:</b>
+                    <ul style="margin: 6px 0 0 1.2rem; font-size: 0.9rem; color: var(--main-text); line-height: 1.6;">
+                        {% for rec in analytics.recommendations %}
+                            <li>{{ rec }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section C: Coursework Assignments & Submissions -->
+        <div class="dash-card" id="assignments">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="font-size: 1.15rem;">📋 Coursework Assignments & Tasks</h3>
+                <span style="font-size: 0.82rem; color: var(--muted-text);">{{ analytics.completed_assignments }} of {{ analytics.total_assignments }} Completed</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="edu-table">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Assignment Title</th>
+                            <th>Due Date</th>
+                            <th>Max Marks</th>
+                            <th>Submission Status</th>
+                            <th>Marks & Feedback</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asg in assignments %}
+                            {% set sub = submissions.get(asg.id) %}
+                            <tr>
+                                <td><b>{{ asg.subject.code }}</b> - {{ asg.subject.name }}</td>
+                                <td><b>{{ asg.title }}</b></td>
+                                <td>{{ asg.due_date.strftime('%b %d, %Y') }}</td>
+                                <td>{{ asg.max_marks }}</td>
+                                <td>
+                                    {% if sub and sub.is_completed %}
+                                        <span class="status-badge status-low">✓ Submitted</span>
+                                    {% else %}
+                                        <span class="status-badge status-high">⏳ Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if sub and sub.marks_obtained is not none %}
+                                        <b>{{ sub.marks_obtained }}</b> / {{ asg.max_marks }}
+                                        {% if sub.feedback %}<br><small style="color: var(--muted-text);">"{{ sub.feedback }}"</small>{% endif %}
+                                    {% else %}
+                                        <span style="color: var(--muted-text);">Awaiting grading</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="6" style="text-align: center; color: var(--muted-text);">No assignments currently posted for your section.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section E: Student Activities & Achievements -->
+        <div class="dash-card" id="activities">
+            <h3 style="font-size: 1.15rem; margin-bottom: 1rem;">🏆 Co-Curricular Activities & Achievements</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                {% for act in activities %}
+                    <div style="background: var(--bg-page); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.1rem;">
+                        <span class="role-badge badge-faculty">{{ act.activity_type }}</span>
+                        <h4 style="font-size: 1rem; margin: 4px 0 2px 0;">{{ act.title }}</h4>
+                        <div style="font-size: 0.78rem; color: var(--primary-purple); font-weight: 700;">{{ act.achievement_level }} &bull; {{ act.event_date.strftime('%b %Y') if act.event_date else 'Recent' }}</div>
+                        <p style="font-size: 0.85rem; color: var(--muted-text); margin-top: 6px;">{{ act.description }}</p>
+                    </div>
+                {% else %}
+                    <p style="color: var(--muted-text); font-size: 0.88rem;">No activities logged yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Section F: Notifications & Faculty Feedback -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;" id="notifications">
+            <div class="dash-card">
+                <h3 style="font-size: 1.15rem; margin-bottom: 1rem;">💬 Faculty Direct Feedback</h3>
+                {% for fb in feedback_list %}
+                    <div style="background: var(--bg-page); border-left: 3px solid var(--primary-purple); border-radius: 8px; padding: 10px 14px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted-text);">
+                            <b>{{ fb.faculty.full_name }}</b>
+                            <span>{{ fb.created_at.strftime('%b %d') }}</span>
+                        </div>
+                        <p style="font-size: 0.9rem; color: var(--main-text); margin-top: 4px;">"{{ fb.feedback_text }}"</p>
+                    </div>
+                {% else %}
+                    <p style="color: var(--muted-text); font-size: 0.88rem;">No feedback notes shared yet.</p>
+                {% endfor %}
+            </div>
+
+            <div class="dash-card">
+                <h3 style="font-size: 1.15rem; margin-bottom: 1rem;">🔔 Notifications & Alerts</h3>
+                {% for n in notifications %}
+                    <div style="background: var(--bg-page); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted-text);">
+                            <span class="status-badge status-ontrack" style="font-size: 0.7rem; padding: 1px 6px;">{{ n.notification_type }}</span>
+                            <span>{{ n.created_at.strftime('%b %d, %H:%M') }}</span>
+                        </div>
+                        <b style="font-size: 0.88rem; color: var(--main-text); margin-top: 4px; display: block;">{{ n.title }}</b>
+                        <p style="font-size: 0.82rem; color: var(--muted-text); margin-top: 2px;">{{ n.message }}</p>
+                    </div>
+                {% else %}
+                    <p style="color: var(--muted-text); font-size: 0.88rem;">No unread alerts.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Subject marks chart
+    const chartSubs = {{ chart_subjects | tojson }};
+    const chartScores = {{ chart_subject_scores | tojson }};
+    if (chartSubs.length > 0) {
+        EduCharts.renderSubjectBarChart('subjectMarksChart', chartSubs, chartScores);
+    }
+
+    // Attendance monthly trajectory chart
+    const months = ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'];
+    const attVals = [88, 86, 92, 90, {{ analytics.attendance_pct }}, {{ analytics.attendance_pct }}];
+    EduCharts.renderAttendanceLineChart('attendanceLineChart', months, attVals);
+});
+</script>
+{% endblock %}

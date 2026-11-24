@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Student Academic Profile - {{ student.full_name }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2.5rem 1.5rem;">
+    <div style="margin-bottom: 1.5rem;">
+        <a href="{{ url_for('faculty.dashboard') }}" class="btn btn-secondary btn-sm">&larr; Back to Faculty Console</a>
+    </div>
+
+    <div class="dash-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div class="user-avatar-circle" style="width: 54px; height: 54px; font-size: 1.3rem;">
+                    {{ student.full_name[:2].upper() }}
+                </div>
+                <div>
+                    <h2 style="font-size: 1.6rem; color: var(--main-text);">{{ student.full_name }}</h2>
+                    <p style="color: var(--muted-text); font-size: 0.88rem;">
+                        ID: <b>{{ student.student_id }}</b> &bull; Section: <b>{{ student.class_grade }}</b> &bull; Department: <b>{{ student.department.name if student.department else 'N/A' }}</b>
+                    </p>
+                </div>
+            </div>
+            <div>
+                <span class="status-badge status-{{ analytics.risk_level.lower() }}" style="font-size: 0.95rem; padding: 0.4rem 1.2rem;">
+                    {{ analytics.risk_level.upper() }} RISK TIER
+                </span>
+            </div>
+        </div>
+
+        <!-- Metrics -->
+        <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
+            <div class="kpi-card">
+                <div class="kpi-label">ATTENDANCE</div>
+                <div class="kpi-value" style="color: {% if analytics.attendance_pct >= 75 %}var(--success-green){% else %}var(--danger-red){% endif %};">
+                    {{ analytics.attendance_pct }}%
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">INTERNAL MARKS</div>
+                <div class="kpi-value">{{ analytics.avg_internal_pct }}%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">PREDICTED SCORE</div>
+                <div class="kpi-value" style="color: var(--primary-purple);">{{ analytics.predicted_score }}%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">PERFORMANCE TIER</div>
+                <div class="kpi-value" style="font-size: 1.25rem;">{{ analytics.performance_category }}</div>
+            </div>
+        </div>
+
+        <!-- AI Guidance -->
+        <div style="background: var(--bg-page); border: 1px solid var(--border-purple); border-radius: 12px; padding: 1.2rem; margin-bottom: 1.5rem;">
+            <h4 style="color: var(--dark-purple); margin-bottom: 0.4rem;">AI Pedagogical Weakness Analysis:</h4>
+            <p style="font-size: 0.92rem; color: var(--main-text); margin-bottom: 0.8rem;">{{ analytics.weak_areas }}</p>
+            <h4 style="color: var(--primary-purple); margin-bottom: 0.4rem;">Recommended Improvement Pathways:</h4>
+            <ul style="margin-left: 1.2rem; font-size: 0.9rem; color: var(--main-text);">
+                {% for r in analytics.recommendations %}
+                    <li>{{ r }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Marks History Table -->
+        <h4 style="margin-bottom: 0.8rem;">Historical Examination Records</h4>
+        <div class="table-responsive">
+            <table class="edu-table">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Exam Type</th>
+                        <th>Score</th>
+                        <th>Max Marks</th>
+                        <th>Percentage</th>
+                        <th>Exam Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in marks_list %}
+                        {% set pct = (m.marks_obtained|float / m.max_marks|float) * 100 %}
+                        <tr>
+                            <td><b>{{ m.subject.code }}</b> - {{ m.subject.name }}</td>
+                            <td>{{ m.exam_type }}</td>
+                            <td>{{ m.marks_obtained }}</td>
+                            <td>{{ m.max_marks }}</td>
+                            <td><b>{{ "%.1f"|format(pct) }}%</b></td>
+                            <td>{{ m.exam_date or 'Recent' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

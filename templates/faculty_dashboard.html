@@ -1,0 +1,433 @@
+{% extends "base.html" %}
+
+{% block title %}Faculty Console - EduPredict{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-user-block">
+            <div class="user-avatar-circle">
+                {{ faculty.full_name[:2].upper() }}
+            </div>
+            <div style="overflow: hidden;">
+                <div style="font-weight: 700; font-size: 0.92rem; color: var(--main-text); text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">{{ faculty.full_name }}</div>
+                <div style="font-size: 0.76rem; color: var(--primary-purple); font-weight: 600;">{{ faculty.faculty_id }} &bull; {{ faculty.department.name if faculty.department else 'Faculty' }}</div>
+            </div>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li><a href="#overview" class="sidebar-link active">📊 Class Overview</a></li>
+            <li><a href="#students-roster" class="sidebar-link">👥 Student Roster & AI Risk</a></li>
+            <li><a href="#assignments" class="sidebar-link">📋 Course Assignments</a></li>
+            <li><a href="javascript:void(0)" onclick="openModal('addMarksModal')" class="sidebar-link">➕ Record Exam Marks</a></li>
+            <li><a href="javascript:void(0)" onclick="openModal('attendanceModal')" class="sidebar-link">📅 Update Attendance</a></li>
+            <li><a href="javascript:void(0)" onclick="openModal('newAssignmentModal')" class="sidebar-link">📤 Upload Assignment</a></li>
+            <li><a href="javascript:void(0)" onclick="openModal('feedbackModal')" class="sidebar-link">💬 Provide Student Feedback</a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary btn-sm" style="width: 100%;">
+                Sign Out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <!-- Top Bar -->
+        <div class="dash-topbar" id="overview">
+            <div class="dash-greeting">
+                <h1>Faculty Console &bull; <span style="color: var(--primary-purple);">{{ selected_class or 'All Classes' }}</span> 🎓</h1>
+                <p>Welcome back, {{ faculty.full_name }}! Review student performance trajectories, log marks, and detect vulnerable learners early.</p>
+            </div>
+
+            <div class="dash-actions-row">
+                <!-- Quick Role Switcher -->
+                <div class="role-switcher-bar">
+                    <span style="font-size: 0.72rem; color: var(--muted-text); font-weight: 700; margin: 0 8px;">VIEW AS:</span>
+                    <a href="{{ url_for('auth.demo_login', role='student') }}" class="role-pill">📚 Student</a>
+                    <a href="{{ url_for('faculty.dashboard') }}" class="role-pill active">🎓 Faculty</a>
+                    <a href="{{ url_for('auth.demo_login', role='parent') }}" class="role-pill">👨‍👩‍👧 Parent</a>
+                    <a href="{{ url_for('auth.demo_login', role='admin') }}" class="role-pill">⚙️ Admin</a>
+                </div>
+
+                <!-- Action Modals Buttons -->
+                <button type="button" class="btn btn-primary btn-sm" onclick="openModal('addMarksModal')">
+                    ➕ Add Marks
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="openModal('attendanceModal')">
+                    📅 Log Attendance
+                </button>
+            </div>
+        </div>
+
+        <!-- Section 7: KPI Statistics Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">TOTAL STUDENTS</div>
+                <div class="kpi-value">{{ total_students }}</div>
+                <div class="kpi-subtext">Enrolled in Class</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">ASSIGNED SUBJECTS</div>
+                <div class="kpi-value">{{ total_subjects }}</div>
+                <div class="kpi-subtext">Teaching Curriculum</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">CLASS AVG PREDICTION</div>
+                <div class="kpi-value" style="color: var(--primary-purple);">{{ avg_class_perf }}%</div>
+                <div class="kpi-subtext">Projected Terminal Avg</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">LOW ATTENDANCE</div>
+                <div class="kpi-value" style="color: {% if low_attendance_count > 0 %}var(--danger-red){% else %}var(--success-green){% endif %};">
+                    {{ low_attendance_count }}
+                </div>
+                <div class="kpi-subtext">Below 75% Benchmark</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">STUDENTS AT RISK</div>
+                <div class="kpi-value" style="color: {% if at_risk_count > 0 %}var(--warning-orange){% else %}var(--success-green){% endif %};">
+                    {{ at_risk_count }}
+                </div>
+                <div class="kpi-subtext">Medium or High Priority</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">ASSIGNMENTS</div>
+                <div class="kpi-value">{{ faculty_assignments|length }}</div>
+                <div class="kpi-subtext">Coursework Modules</div>
+            </div>
+        </div>
+
+        <!-- Class Filter & Student Roster Search Bar -->
+        <div class="dash-card" id="students-roster">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 1.2rem;">
+                <div>
+                    <h3 style="font-size: 1.25rem;">👥 Enrolled Student Roster & AI Risk Evaluation</h3>
+                    <p style="color: var(--muted-text); font-size: 0.85rem;">Search, filter by risk level, view profiles, and log grades.</p>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <!-- Class Filter -->
+                    <form method="GET" action="{{ url_for('faculty.dashboard') }}" style="display: flex; gap: 8px;">
+                        <select name="class_grade" class="form-control" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.86rem;" onchange="this.form.submit()">
+                            {% for c in assigned_classes %}
+                                <option value="{{ c }}" {% if selected_class == c %}selected{% endif %}>{{ c }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="risk" class="form-control" style="width: auto; padding: 0.4rem 0.8rem; font-size: 0.86rem;" onchange="this.form.submit()">
+                            <option value="all" {% if risk_filter == 'all' %}selected{% endif %}>All Risk Tiers</option>
+                            <option value="low" {% if risk_filter == 'low' %}selected{% endif %}>🟢 Low Risk (On Track)</option>
+                            <option value="medium" {% if risk_filter == 'medium' %}selected{% endif %}>🟡 Medium Risk</option>
+                            <option value="high" {% if risk_filter == 'high' %}selected{% endif %}>🔴 High Risk (Urgent)</option>
+                        </select>
+                    </form>
+
+                    <!-- Client Search Input -->
+                    <input type="text" id="table-search-input" class="form-control" placeholder="Search student name or ID..." style="width: 220px; padding: 0.4rem 0.8rem; font-size: 0.86rem;">
+                </div>
+            </div>
+
+            <!-- Student Performance Table -->
+            <div class="table-responsive">
+                <table class="edu-table searchable-table">
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Student Full Name</th>
+                            <th>Attendance %</th>
+                            <th>Internal Marks</th>
+                            <th>Predicted Score</th>
+                            <th>AI Risk Level</th>
+                            <th>Action Tools</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in student_data %}
+                            {% set s = item.student %}
+                            {% set an = item.analytics %}
+                            <tr>
+                                <td><b>{{ s.student_id }}</b></td>
+                                <td>
+                                    <b>{{ s.full_name }}</b>
+                                    <div style="font-size: 0.76rem; color: var(--muted-text);">{{ s.email }}</div>
+                                </td>
+                                <td>
+                                    <b style="color: {% if an.attendance_pct >= 75 %}var(--success-green){% else %}var(--danger-red){% endif %};">
+                                        {{ an.attendance_pct }}%
+                                    </b>
+                                </td>
+                                <td><b>{{ an.avg_internal_pct }}%</b></td>
+                                <td>
+                                    <span style="font-weight: 800; color: var(--primary-purple); font-size: 1.05rem;">
+                                        {{ an.predicted_score }}%
+                                    </span>
+                                    <div style="font-size: 0.72rem; color: var(--muted-text);">{{ an.performance_category }}</div>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-{{ an.risk_level.lower() }}">
+                                        {{ an.risk_level.upper() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 6px;">
+                                        <button type="button" class="btn btn-secondary btn-sm" onclick="setQuickMarkStudent('{{ s.id }}', '{{ s.full_name }}'); openModal('addMarksModal');" title="Add Marks">
+                                            ➕ Mark
+                                        </button>
+                                        <button type="button" class="btn btn-secondary btn-sm" onclick="setQuickFeedbackStudent('{{ s.id }}', '{{ s.full_name }}'); openModal('feedbackModal');" title="Give Feedback">
+                                            💬 Note
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="7" style="text-align: center; color: var(--muted-text);">No students match your filter criteria.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Assignments Section -->
+        <div class="dash-card" id="assignments">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="font-size: 1.15rem;">📋 Uploaded Coursework Assignments</h3>
+                <button type="button" class="btn btn-primary btn-sm" onclick="openModal('newAssignmentModal')">
+                    ➕ Post New Assignment
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="edu-table">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Title</th>
+                            <th>Target Class</th>
+                            <th>Due Date</th>
+                            <th>Max Marks</th>
+                            <th>Submissions Received</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asg in faculty_assignments %}
+                            <tr>
+                                <td><b>{{ asg.subject.code }}</b> - {{ asg.subject.name }}</td>
+                                <td><b>{{ asg.title }}</b></td>
+                                <td><span class="role-badge badge-faculty">{{ asg.class_grade }}</span></td>
+                                <td>{{ asg.due_date.strftime('%b %d, %Y') }}</td>
+                                <td>{{ asg.max_marks }}</td>
+                                <td><b>{{ asg.submissions.count() }} submissions</b></td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="6" style="text-align: center; color: var(--muted-text);">No assignments posted yet. Click 'Post New Assignment' above.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================================
+     MODALS FOR FACULTY FUNCTIONALITIES
+     ========================================================================== -->
+
+<!-- 1. Add Marks Modal -->
+<div id="addMarksModal" class="modal-backdrop">
+    <div class="modal-box">
+        <button type="button" class="modal-close-btn" onclick="closeModal('addMarksModal')">&times;</button>
+        <h3 style="margin-bottom: 0.4rem;">Record Student Examination Marks</h3>
+        <p style="font-size: 0.85rem; color: var(--muted-text); margin-bottom: 1.2rem;">
+            Marks entered are saved directly in MySQL and trigger an instant AI prediction update.
+        </p>
+        <form method="POST" action="{{ url_for('faculty.add_marks') }}">
+            <div class="form-group">
+                <label class="form-label">Select Student *</label>
+                <select name="student_id" id="mark-student-select" class="form-control" required>
+                    {% for item in student_data %}
+                        <option value="{{ item.student.id }}">{{ item.student.full_name }} ({{ item.student.student_id }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Subject *</label>
+                <select name="subject_id" class="form-control" required>
+                    {% for sub in assigned_subjects %}
+                        <option value="{{ sub.id }}">{{ sub.code }} - {{ sub.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Examination Type *</label>
+                    <select name="exam_type" class="form-control">
+                        <option value="Internal Examination 1">Internal 1</option>
+                        <option value="Internal Examination 2">Internal 2</option>
+                        <option value="Midterm Examination">Midterm</option>
+                        <option value="Practical Lab Exam">Practical Exam</option>
+                        <option value="Coursework Assignment">Assignment</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Marks Scored *</label>
+                    <input type="number" step="0.5" name="marks_obtained" class="form-control" placeholder="e.g. 45" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Maximum Marks *</label>
+                <input type="number" step="0.5" name="max_marks" class="form-control" value="50" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Faculty Remarks</label>
+                <input type="text" name="remarks" class="form-control" placeholder="e.g. Good mastery of algorithms">
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.2rem;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('addMarksModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Marks</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 2. Update Attendance Modal -->
+<div id="attendanceModal" class="modal-backdrop">
+    <div class="modal-box">
+        <button type="button" class="modal-close-btn" onclick="closeModal('attendanceModal')">&times;</button>
+        <h3 style="margin-bottom: 0.4rem;">Update Attendance Entry</h3>
+        <p style="font-size: 0.85rem; color: var(--muted-text); margin-bottom: 1.2rem;">
+            Logs attendance entry into database and triggers automated warnings if below 75%.
+        </p>
+        <form method="POST" action="{{ url_for('faculty.update_attendance') }}">
+            <div class="form-group">
+                <label class="form-label">Select Student *</label>
+                <select name="student_id" class="form-control" required>
+                    {% for item in student_data %}
+                        <option value="{{ item.student.id }}">{{ item.student.full_name }} ({{ item.student.student_id }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Subject *</label>
+                <select name="subject_id" class="form-control" required>
+                    {% for sub in assigned_subjects %}
+                        <option value="{{ sub.id }}">{{ sub.code }} - {{ sub.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Attendance Status *</label>
+                <select name="status" class="form-control">
+                    <option value="Present">Present (Attended)</option>
+                    <option value="Absent">Absent</option>
+                    <option value="Late">Late</option>
+                    <option value="Excused">Excused Leave</option>
+                </select>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.2rem;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('attendanceModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Log Attendance</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 3. Upload Assignment Modal -->
+<div id="newAssignmentModal" class="modal-backdrop">
+    <div class="modal-box">
+        <button type="button" class="modal-close-btn" onclick="closeModal('newAssignmentModal')">&times;</button>
+        <h3 style="margin-bottom: 0.4rem;">Upload New Assignment</h3>
+        <p style="font-size: 0.85rem; color: var(--muted-text); margin-bottom: 1.2rem;">
+            Creates assignment and automatically generates notification alerts for enrolled students.
+        </p>
+        <form method="POST" action="{{ url_for('faculty.add_assignment') }}">
+            <div class="form-group">
+                <label class="form-label">Subject *</label>
+                <select name="subject_id" class="form-control" required>
+                    {% for sub in assigned_subjects %}
+                        <option value="{{ sub.id }}">{{ sub.code }} - {{ sub.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Assignment Title *</label>
+                <input type="text" name="title" class="form-control" placeholder="e.g. Relational Calculus & Schema Normalization" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Instructions / Description</label>
+                <textarea name="description" class="form-control" rows="3" placeholder="Provide problem specifications and guidelines..."></textarea>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Max Marks</label>
+                    <input type="number" name="max_marks" class="form-control" value="100" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Due Date *</label>
+                    <input type="date" name="due_date" class="form-control" required>
+                </div>
+            </div>
+            <input type="hidden" name="class_grade" value="{{ selected_class or 'Class CSE-3A' }}">
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.2rem;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('newAssignmentModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Publish Assignment</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 4. Feedback Modal -->
+<div id="feedbackModal" class="modal-backdrop">
+    <div class="modal-box">
+        <button type="button" class="modal-close-btn" onclick="closeModal('feedbackModal')">&times;</button>
+        <h3 style="margin-bottom: 0.4rem;">Provide Student Feedback</h3>
+        <p style="font-size: 0.85rem; color: var(--muted-text); margin-bottom: 1.2rem;">
+            This feedback will be shared directly on the student and linked parent dashboards.
+        </p>
+        <form method="POST" action="{{ url_for('faculty.give_feedback') }}">
+            <div class="form-group">
+                <label class="form-label">Select Student *</label>
+                <select name="student_id" id="feedback-student-select" class="form-control" required>
+                    {% for item in student_data %}
+                        <option value="{{ item.student.id }}">{{ item.student.full_name }} ({{ item.student.student_id }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Feedback Category *</label>
+                <select name="category" class="form-control">
+                    <option value="Academic Progress">Academic Progress</option>
+                    <option value="Attendance Notice">Attendance Notice</option>
+                    <option value="Homework & Assignment">Homework & Assignment</option>
+                    <option value="Commendation">Commendation / Excellence</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Feedback Notes *</label>
+                <textarea name="feedback_text" class="form-control" rows="3" placeholder="Write constructive guidance for student and family..." required></textarea>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.2rem;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('feedbackModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Submit Feedback</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function setQuickMarkStudent(studentId, studentName) {
+    const sel = document.getElementById('mark-student-select');
+    if (sel) sel.value = studentId;
+}
+function setQuickFeedbackStudent(studentId, studentName) {
+    const sel = document.getElementById('feedback-student-select');
+    if (sel) sel.value = studentId;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,40 @@
+{
+  "version": "v1.0-scikit-ensemble",
+  "trained_date": "2026-11-24 21:08:36",
+  "features": [
+    "previous_semester_marks",
+    "attendance_percentage",
+    "internal_examination_marks",
+    "assignment_completion_pct",
+    "practical_examination_marks",
+    "classroom_participation",
+    "study_hours_per_day"
+  ],
+  "feature_importances": {
+    "previous_semester_marks": 0.0994,
+    "attendance_percentage": 0.0265,
+    "internal_examination_marks": 0.799,
+    "assignment_completion_pct": 0.0209,
+    "practical_examination_marks": 0.0327,
+    "classroom_participation": 0.0089,
+    "study_hours_per_day": 0.0127
+  },
+  "metrics": {
+    "regression": {
+      "algorithm": "Random Forest Regressor (120 trees)",
+      "r2_score": 0.9145,
+      "mae": 2.49,
+      "rmse": 3.09
+    },
+    "performance_classification": {
+      "algorithm": "Decision Tree Classifier",
+      "accuracy": 0.79,
+      "f1_score": 0.7886
+    },
+    "risk_classification": {
+      "algorithm": "Multinomial Logistic Regression",
+      "accuracy": 0.93,
+      "f1_score": 0.9223
+    }
+  }
+}

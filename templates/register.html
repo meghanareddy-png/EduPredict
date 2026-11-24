@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Register - EduPredict{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card" style="max-width: 580px;">
+        <div class="auth-header">
+            <img src="{{ url_for('static', filename='images/edupredict-logo.png') }}" alt="EduPredict Logo">
+            <h2>Create an Account</h2>
+            <p>Join EduPredict to track performance and unlock predictive insights</p>
+        </div>
+
+        <!-- Role Selector Tabs -->
+        <div style="display: flex; gap: 8px; margin-bottom: 1.8rem; background: var(--bg-page); padding: 5px; border-radius: 12px; border: 1px solid var(--border-purple);">
+            <button type="button" class="btn btn-sm btn-primary" id="tab-student" onclick="selectRole('student')" style="flex: 1;">📚 Student</button>
+            <button type="button" class="btn btn-sm btn-secondary" id="tab-parent" onclick="selectRole('parent')" style="flex: 1;">👨‍👩‍👧 Parent</button>
+            <button type="button" class="btn btn-sm btn-secondary" id="tab-faculty" onclick="selectRole('faculty')" style="flex: 1;">🎓 Faculty</button>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.register') }}">
+            <input type="hidden" name="role" id="selected-role" value="student">
+
+            <!-- Common Fields -->
+            <div class="form-group">
+                <label class="form-label">Full Name *</label>
+                <input type="text" name="full_name" class="form-control" placeholder="e.g. Aarav Patel" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Institutional Email Address *</label>
+                <input type="email" name="email" class="form-control" placeholder="e.g. name@domain.edu" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Password *</label>
+                    <input type="password" name="password" class="form-control" placeholder="Min. 6 characters" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm Password *</label>
+                    <input type="password" name="confirm_password" class="form-control" placeholder="Re-enter password" required>
+                </div>
+            </div>
+
+            <!-- Student Specific Fields -->
+            <div id="fields-student">
+                <div class="form-group">
+                    <label class="form-label">Student ID (Roll Number) *</label>
+                    <input type="text" name="student_id" class="form-control" placeholder="e.g. STU1004">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Department *</label>
+                        <select name="department_id" class="form-control">
+                            {% for d in departments %}
+                                <option value="{{ d.id }}">{{ d.code }} - {{ d.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Semester *</label>
+                        <select name="semester_id" class="form-control">
+                            {% for s in semesters %}
+                                <option value="{{ s.id }}">{{ s.name }} ({{ s.academic_year }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Class / Section *</label>
+                    <input type="text" name="class_grade" class="form-control" placeholder="e.g. Class CSE-3A" value="Class CSE-3A">
+                </div>
+            </div>
+
+            <!-- Parent Specific Fields -->
+            <div id="fields-parent" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" name="phone" class="form-control" placeholder="+91 98765 43210">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Linked Student ID *</label>
+                        <input type="text" name="linked_student_id" class="form-control" placeholder="e.g. STU1001">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Relationship *</label>
+                        <select name="relationship" class="form-control">
+                            <option value="Father">Father</option>
+                            <option value="Mother">Mother</option>
+                            <option value="Guardian">Guardian</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faculty Specific Fields -->
+            <div id="fields-faculty" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Faculty ID *</label>
+                    <input type="text" name="faculty_id" class="form-control" placeholder="e.g. FAC102">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Department *</label>
+                    <select name="department_id" class="form-control">
+                        {% for d in departments %}
+                            <option value="{{ d.id }}">{{ d.code }} - {{ d.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-size: 1rem; margin-top: 1rem;">
+                Create EduPredict Account
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--muted-text); border-top: 1px solid var(--border-color); padding-top: 1.2rem;">
+            Already have an account? <a href="{{ url_for('auth.login') }}" style="font-weight: 700; color: var(--primary-purple);">Sign in</a>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectRole(role) {
+    document.getElementById('selected-role').value = role;
+
+    ['student', 'parent', 'faculty'].forEach(r => {
+        const btn = document.getElementById('tab-' + r);
+        const fields = document.getElementById('fields-' + r);
+        if (r === role) {
+            btn.className = 'btn btn-sm btn-primary';
+            if (fields) fields.style.display = 'block';
+        } else {
+            btn.className = 'btn btn-sm btn-secondary';
+            if (fields) fields.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}
