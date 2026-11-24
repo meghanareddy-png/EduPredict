@@ -1131,26 +1131,15 @@
         };
 
         document.addEventListener("DOMContentLoaded", function () {
-            // Check URL parameter e.g. ?splash=1 to force splash on demand
-            const urlParams = new URLSearchParams(window.location.search);
-            const forceSplash = urlParams.get('splash');
-
-            // 1. Splash Screen Controller (3-Second Animation)
+            // 1. Splash Screen Controller (Automatically visible for 3 seconds before opening website)
             const splash = document.getElementById("splash-screen");
             if (splash) {
-                const hasSeen = sessionStorage.getItem("edupredict_splash_seen");
-                if (hasSeen && !forceSplash) {
-                    splash.style.display = "none";
-                } else {
-                    // Initial visit: keep visible for exactly 3 seconds with smooth fade-out
+                setTimeout(function () {
+                    splash.classList.add("splash-hidden");
                     setTimeout(function () {
-                        splash.classList.add("splash-hidden");
-                        sessionStorage.setItem("edupredict_splash_seen", "true");
-                        setTimeout(function () {
-                            splash.style.display = "none";
-                        }, 600);
-                    }, 3000);
-                }
+                        splash.style.display = "none";
+                    }, 600);
+                }, 3000);
             }
 
             // 2. Dark Mode Toggle

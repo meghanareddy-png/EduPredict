@@ -37,24 +37,15 @@ window.triggerSplashAnimation = function () {
 };
 
 document.addEventListener("DOMContentLoaded", function () {
-    // 1. Animated Splash Screen Controller
+    // 1. Animated Splash Screen Controller (Automatically displays for 3 seconds on open)
     const splash = document.getElementById("splash-screen");
     if (splash) {
-        const hasSeenSplash = sessionStorage.getItem("edupredict_splash_seen");
-        if (hasSeenSplash) {
-            // Already visited in this session: hide splash immediately
+        setTimeout(function () {
             splash.classList.add("splash-hidden");
-            splash.remove();
-        } else {
-            // Initial visit: keep visible for exactly 3 seconds with smooth fade-out
             setTimeout(function () {
-                splash.classList.add("splash-hidden");
-                sessionStorage.setItem("edupredict_splash_seen", "true");
-                setTimeout(function () {
-                    splash.remove();
-                }, 600);
-            }, 3000);
-        }
+                splash.style.display = "none";
+            }, 600);
+        }, 3000);
     }
 
     // 2. Dark Mode Toggle
