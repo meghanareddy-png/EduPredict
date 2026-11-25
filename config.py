@@ -15,45 +15,21 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 def get_database_uri():
     """
     Determines database URI based on environment variables.
-    Attempts MySQL first if configured, otherwise falls back gracefully to SQLite.
+    Defaults directly to the local SQLite database (edupredict.db).
     """
     direct_url = os.getenv("DATABASE_URL")
     if direct_url:
         return direct_url
 
-    mysql_host = os.getenv("MYSQL_HOST", "localhost")
-    mysql_port = os.getenv("MYSQL_PORT", "3306")
-    mysql_user = os.getenv("MYSQL_USER", "root")
-    mysql_pass = os.getenv("MYSQL_PASSWORD", "")
-    mysql_db = os.getenv("MYSQL_DB", "edupredict_db")
-
-    # Check if user specifically requested MySQL or if MySQL is available
-    use_mysql = os.getenv("USE_MYSQL", "auto").lower()
-
+    use_mysql = os.getenv("USE_MYSQL", "false").lower()
     if use_mysql in ("true", "1", "yes"):
-        # Explicit MySQL connection
+        mysql_host = os.getenv("MYSQL_HOST", "localhost")
+        mysql_port = os.getenv("MYSQL_PORT", "3306")
+        mysql_user = os.getenv("MYSQL_USER", "root")
+        mysql_pass = os.getenv("MYSQL_PASSWORD", "")
+        mysql_db = os.getenv("MYSQL_DB", "edupredict_db")
         pwd_part = f":{mysql_pass}" if mysql_pass else ""
         return f"mysql+pymysql://{mysql_user}{pwd_part}@{mysql_host}:{mysql_port}/{mysql_db}"
-
-    if use_mysql == "auto":
-        try:
-            import pymysql
-            conn = pymysql.connect(
-                host=mysql_host,
-                port=int(mysql_port),
-                user=mysql_user,
-                password=mysql_pass,
-                connect_timeout=1
-            )
-            conn.close()
-            pwd_part = f":{mysql_pass}" if mysql_pass else ""
-            print("[EduPredict DB] Connected to active MySQL server at", mysql_host)
-            return f"mysql+pymysql://{mysql_user}{pwd_part}@{mysql_host}:{mysql_port}/{mysql_db}"
-        except Exception:
-            # Fall back to SQLite for seamless zero-setup testing
-            sqlite_path = os.path.join(BASE_DIR, "edupredict.db")
-            print(f"[EduPredict DB] MySQL not reachable on {mysql_host}:{mysql_port}. Using SQLite engine ({sqlite_path}).")
-            return f"sqlite:///{sqlite_path}"
 
     sqlite_path = os.path.join(BASE_DIR, "edupredict.db")
     return f"sqlite:///{sqlite_path}"
