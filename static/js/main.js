@@ -7,35 +7,6 @@
  * - Smooth scroll & modal triggers
  */
 
-window.triggerSplashAnimation = function () {
-    const splash = document.getElementById("splash-screen");
-    if (!splash) return;
-    splash.style.display = "flex";
-    splash.style.opacity = "1";
-    splash.style.visibility = "visible";
-    splash.classList.remove("splash-hidden");
-
-    const content = splash.querySelector(".splash-content");
-    if (content) {
-        content.style.animation = 'none';
-        content.offsetHeight;
-        content.style.animation = 'splashZoomGlow 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards';
-    }
-    const bar = splash.querySelector(".splash-loader-bar");
-    if (bar) {
-        bar.style.animation = 'none';
-        bar.offsetHeight;
-        bar.style.animation = 'splashFill 2.7s ease-in-out forwards';
-    }
-
-    setTimeout(function () {
-        splash.classList.add("splash-hidden");
-        setTimeout(function () {
-            splash.style.display = "none";
-        }, 600);
-    }, 3000);
-};
-
 document.addEventListener("DOMContentLoaded", function () {
     // 1. Animated Splash Screen Controller (Automatically displays for 3 seconds on open)
     const splash = document.getElementById("splash-screen");
